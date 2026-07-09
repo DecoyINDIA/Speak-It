@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: transparent;
+      user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    
+    .indicator-container {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 12px;
+      background: rgba(15, 16, 17, 0.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      padding: 10px 20px;
+      height: 48px;
+      box-sizing: border-box;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      color: #fff;
+    }
+
+    .orb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #f54e00; /* Cursor Orange voltage */
+      transition: all 0.3s ease;
+    }
+
+    .pulsing {
+      animation: pulse 1.2s infinite alternate;
+    }
+
+    .spinning {
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top: 2px solid #5e6ad2; /* Linear Lavender */
+      background: transparent;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .success {
+      background: #10b981; /* Success Green */
+    }
+
+    .error {
+      background: #ef4444; /* Error Red */
+    }
+
+    .label {
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(0.85);
+        box-shadow: 0 0 0 0 rgba(245, 78, 0, 0.7);
+      }
+      100% {
+        transform: scale(1.15);
+        box-shadow: 0 0 10px 4px rgba(245, 78, 0, 0.3);
+      }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="indicator-container">
+    <div id="orb" class="orb pulsing"></div>
+    <div id="label" class="label">Listening...</div>
+  </div>
+  
+  <script src="indicator.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+sample_id,provider,model,word_accuracy,wer,dictionary_terms_total,dictionary_terms_correct,transcript_latency_ms,total_cost_usd,notes
+S001,baseline_os,windows_dictation,0,0,0,0,0,0,
+S001,provider_a,tbd,0,0,0,0,0,0,
+S001,provider_b,tbd,0,0,0,0,0,0,

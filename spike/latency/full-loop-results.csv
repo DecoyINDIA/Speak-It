@@ -1,0 +1,2 @@
+run_id,sample_id,stt_provider,cleanup_provider,cleanup_model,audio_duration_ms,stt_final_ms,cleanup_ms,server_overhead_ms,client_insert_ms,total_ms,success,notes
+R001,S001,tbd,tbd,tbd,0,0,0,0,0,0,false,

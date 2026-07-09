@@ -1,0 +1,12 @@
+{
+  "name": "voicedraft-desktop",
+  "version": "1.0.0",
+  "description": "VoiceDraft Desktop Client",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^30.5.1"
+  }
+}
