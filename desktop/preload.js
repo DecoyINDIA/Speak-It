@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
   getPlatform: () => ipcRenderer.invoke('get-platform'),
+  getApiUrl: () => ipcRenderer.invoke('get-api-url'),
   setRecordingState: (recording) => ipcRenderer.send('set-recording-state', recording),
   hideIndicator: () => ipcRenderer.send('hide-indicator'),
   showIndicatorState: (state) => ipcRenderer.send('show-indicator-state', state),

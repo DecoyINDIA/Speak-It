@@ -24,10 +24,11 @@ const upload = multer({
 
 // Middleware to check if Gemini API key is configured
 const checkApiKey = (req: Request, res: Response, next: Function) => {
-  if (!process.env.GEMINI_API_KEY) {
+  const dbApiKey = db.getSettings().geminiApiKey;
+  if (!process.env.GEMINI_API_KEY && !dbApiKey) {
     return res.status(500).json({
       error: 'API_KEY_MISSING',
-      message: 'GEMINI_API_KEY is not defined in the backend environment. Please edit backend/.env and add your key.'
+      message: 'Gemini API Key is not configured. Please add it via the Settings page or edit backend/.env.'
     });
   }
   next();
@@ -35,9 +36,10 @@ const checkApiKey = (req: Request, res: Response, next: Function) => {
 
 // Health Check / Verification endpoint
 app.get('/api/health', (req: Request, res: Response) => {
+  const dbApiKey = db.getSettings().geminiApiKey;
   res.json({
     status: 'ok',
-    apiKeyConfigured: !!process.env.GEMINI_API_KEY,
+    apiKeyConfigured: !!process.env.GEMINI_API_KEY || !!dbApiKey,
     platform: process.platform,
     time: new Date().toISOString()
   });
@@ -106,13 +108,15 @@ app.post(
       const mimeType = req.file.mimetype || 'audio/webm';
       
       const dictionary = db.getDictionary();
+      const dbApiKey = db.getSettings().geminiApiKey;
 
       // Call Gemini for transcription & cleanup
       const result = await transcribeAndCleanup(
         req.file.buffer,
         mimeType,
         mode,
-        dictionary
+        dictionary,
+        dbApiKey
       );
 
       const durationMs = Date.now() - start;
@@ -156,7 +160,8 @@ app.post('/api/rewrite', checkApiKey, async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Instruction description is required.' });
     }
 
-    const rewritten = await rewriteText(text, instruction, mode || 'default');
+    const dbApiKey = db.getSettings().geminiApiKey;
+    const rewritten = await rewriteText(text, instruction, mode || 'default', dbApiKey);
     
     res.json({
       text: rewritten,
@@ -173,5 +178,5 @@ app.post('/api/rewrite', checkApiKey, async (req: Request, res: Response) => {
 // Start Server
 app.listen(PORT, () => {
   console.log(`[VoiceDraft Backend] Running on http://localhost:${PORT}`);
-  console.log(`[VoiceDraft Backend] API Key loaded: ${process.env.GEMINI_API_KEY ? 'YES' : 'NO'}`);
+  console.log(`[VoiceDraft Backend] API Key loaded: ${process.env.GEMINI_API_KEY || db.getSettings().geminiApiKey ? 'YES' : 'NO'}`);
 });

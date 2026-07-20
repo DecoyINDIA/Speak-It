@@ -5,10 +5,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Initialize the Gemini API client using the official @google/genai SDK
-const getGenAIClient = () => {
-  const apiKey = process.env.GEMINI_API_KEY;
+const getGenAIClient = (customApiKey?: string) => {
+  const apiKey = process.env.GEMINI_API_KEY || customApiKey;
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY is not defined in environment variables. Please check your backend .env file.');
+    throw new Error('GEMINI_API_KEY is not defined. Please check your backend .env file or configuration.');
   }
   return new GoogleGenAI({ apiKey });
 };
@@ -66,10 +66,11 @@ export async function transcribeAndCleanup(
   audioBuffer: Buffer,
   mimeType: string,
   mode: string,
-  dictionary: DictionaryTerm[]
+  dictionary: DictionaryTerm[],
+  customApiKey?: string
 ): Promise<{ text: string; rawTranscript: string }> {
   try {
-    const ai = getGenAIClient();
+    const ai = getGenAIClient(customApiKey);
     
     const modePrompt = getModeInstruction(mode);
     const dictionaryPrompt = getDictionaryPrompt(dictionary);
@@ -80,7 +81,11 @@ Additional guidelines for this request:
 ${modePrompt}
 ${dictionaryPrompt}
 
-Please transcribe the attached audio and output only the final polished text. If the audio is empty or has only background noise, reply with absolutely nothing.`;
+You MUST transcribe the attached audio and return a JSON object containing:
+1. "rawTranscript": The literal, word-for-word transcript of the audio, including filler words, false starts, and self-corrections.
+2. "text": The cleaned, polished, grammatically correct version matching the requested tone/formatting.
+
+If the audio is empty, has only background noise, or contains no speech, set both values to empty strings.`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
@@ -95,34 +100,31 @@ Please transcribe the attached audio and output only the final polished text. If
       ],
       config: {
         temperature: 0.1, // Keep it highly deterministic
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: 'OBJECT',
+          properties: {
+            rawTranscript: { type: 'STRING' },
+            text: { type: 'STRING' }
+          },
+          required: ['rawTranscript', 'text']
+        }
       }
     });
 
-    const cleanedText = response.text?.trim() || '';
+    let cleanedText = '';
+    let rawTranscript = '';
 
-    // To follow the MVP's raw transcript fallback, we make a secondary, extremely fast request to get the raw transcript
-    // (Only if we want both. Since we want raw transcript for history, we can generate a quick raw transcript or construct one).
-    // Let's do a fast raw transcription.
-    let rawTranscript = cleanedText;
-    try {
-      const rawResponse = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: [
-          {
-            inlineData: {
-              data: audioBuffer.toString('base64'),
-              mimeType: mimeType
-            }
-          },
-          'Output the literal speech-to-text transcript of this audio. Do not clean it up, do not fix grammar. Just transcribe exactly what is said, filler words included.'
-        ],
-        config: {
-          temperature: 0.0
-        }
-      });
-      rawTranscript = rawResponse.text?.trim() || cleanedText;
-    } catch (e) {
-      console.warn('Failed to get raw transcript, using cleaned text as fallback:', e);
+    if (response.text) {
+      try {
+        const parsed = JSON.parse(response.text.trim());
+        cleanedText = parsed.text || '';
+        rawTranscript = parsed.rawTranscript || '';
+      } catch (jsonErr) {
+        console.warn('Failed to parse structured JSON response from Gemini, using raw text fallback:', jsonErr);
+        cleanedText = response.text.trim();
+        rawTranscript = response.text.trim();
+      }
     }
 
     return {
@@ -141,10 +143,11 @@ Please transcribe the attached audio and output only the final polished text. If
 export async function rewriteText(
   text: string,
   instruction: string,
-  mode: string
+  mode: string,
+  customApiKey?: string
 ): Promise<string> {
   try {
-    const ai = getGenAIClient();
+    const ai = getGenAIClient(customApiKey);
     const systemPrompt = `You are a text editing assistant.
 Your task is to rewrite the user's text based on their instructions: "${instruction}".
 Maintain the tone of the mode if specified (current mode: "${mode}").

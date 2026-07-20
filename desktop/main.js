@@ -1,12 +1,30 @@
 const { app, BrowserWindow, ipcMain, globalShortcut, Tray, Menu, clipboard } = require('electron');
 const path = require('path');
 const { exec } = require('child_process');
+const net = require('net');
 
 let mainWindow = null;
 let indicatorWindow = null;
 let appTray = null;
 let isRecording = false;
 let currentHotkey = 'Alt+Space';
+let apiPort = 3000;
+
+function getFreePort(startingPort = 3000) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.unref();
+    server.on('error', () => {
+      resolve(getFreePort(startingPort + 1));
+    });
+    server.listen(startingPort, () => {
+      const { port } = server.address();
+      server.close(() => {
+        resolve(port);
+      });
+    });
+  });
+}
 
 // Create the main dashboard/settings window
 function createMainWindow() {
@@ -171,6 +189,7 @@ function simulatePasteOnWindows(text) {
 
 // IPC Handlers
 ipcMain.handle('get-platform', () => process.platform);
+ipcMain.handle('get-api-url', () => `http://localhost:${apiPort}/api`);
 
 ipcMain.on('set-recording-state', (event, recording) => {
   isRecording = recording;
@@ -240,7 +259,23 @@ ipcMain.on('update-hotkey', (event, newHotkey) => {
 });
 
 // App lifecycle hooks
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // Find a free port starting at 3000
+  apiPort = await getFreePort(3000);
+  process.env.PORT = String(apiPort);
+  
+  // Start backend server
+  const backendPath = app.isPackaged 
+    ? path.join(__dirname, 'backend-dist', 'server.js')
+    : path.join(__dirname, '..', 'backend', 'dist', 'server.js');
+    
+  try {
+    require(backendPath);
+    console.log(`[VoiceDraft] Local backend server running on port ${apiPort}`);
+  } catch (error) {
+    console.error('[VoiceDraft] Failed to start backend server:', error);
+  }
+
   createMainWindow();
   createIndicatorWindow();
   createTray();

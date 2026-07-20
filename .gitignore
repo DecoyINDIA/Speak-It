@@ -1,5 +1,7 @@
 node_modules/
 dist/
+backend-dist/
+dist-app/
 .env
 db.json
 *.log
@@ -7,3 +9,4 @@ db.json
 *.wav
 *.webm
 out/
+

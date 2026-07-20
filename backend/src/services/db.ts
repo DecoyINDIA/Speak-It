@@ -1,7 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 
-const DB_PATH = path.join(__dirname, '..', '..', 'db.json');
+const appDataPath = process.env.APPDATA || 
+  (process.platform === 'darwin' ? path.join(process.env.HOME || '', 'Library', 'Application Support') : path.join(process.env.HOME || '', '.config'));
+const DB_PATH = (process.env.NODE_ENV === 'production' || !!process.versions.electron)
+  ? path.join(appDataPath, 'VoiceDraft', 'db.json') 
+  : path.join(__dirname, '..', '..', 'db.json');
 
 export interface DictationRecord {
   id: string;
@@ -27,6 +31,7 @@ export interface UserSettings {
   autoPaste: boolean;
   reviewBeforePaste: boolean;
   historyEnabled: boolean;
+  geminiApiKey?: string;
 }
 
 interface DatabaseSchema {
@@ -40,7 +45,8 @@ const DEFAULT_SETTINGS: UserSettings = {
   defaultMode: 'default',
   autoPaste: true,
   reviewBeforePaste: false,
-  historyEnabled: true
+  historyEnabled: true,
+  geminiApiKey: ''
 };
 
 const DEFAULT_SCHEMA: DatabaseSchema = {

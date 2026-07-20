@@ -5,7 +5,11 @@
   "private": true,
   "scripts": {
     "install-all": "npm install && npm install --prefix backend && npm install --prefix desktop",
-    "dev": "concurrently \"npm run dev --prefix backend\" \"npm start --prefix desktop\""
+    "build:backend": "npm run build --prefix backend",
+    "copy-backend": "node -e \"const fs=require('fs'); const path=require('path'); const src=path.join('backend', 'dist'); const dest=path.join('desktop', 'backend-dist'); if(fs.existsSync(dest)) fs.rmSync(dest, {recursive:true, force:true}); fs.cpSync(src, dest, {recursive:true}); console.log('Backend copied to desktop.');\"",
+    "build:desktop": "npm run dist --prefix desktop",
+    "build": "npm run build:backend && npm run copy-backend && npm run build:desktop",
+    "dev": "npm run build:backend && npm run copy-backend && concurrently \"tsc -w --prefix backend\" \"node -e \\\"const fs=require('fs'); const path=require('path'); const src=path.join('backend', 'dist'); const dest=path.join('desktop', 'backend-dist'); fs.watch(src, {recursive:true}, (evt, filename) => { try { if(fs.existsSync(dest)) fs.rmSync(dest, {recursive:true, force:true}); fs.cpSync(src, dest, {recursive:true}); console.log('Sync backend changes...'); } catch(e){} });\\\"\" \"npm start --prefix desktop\""
   },
   "dependencies": {
     "concurrently": "^8.2.2"

@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3000/api';
+let API_BASE = 'http://localhost:3000/api';
 
 // State variables
 let mediaRecorder = null;
@@ -9,7 +9,8 @@ let userSettings = {
   defaultMode: 'default',
   autoPaste: true,
   reviewBeforePaste: false,
-  historyEnabled: true
+  historyEnabled: true,
+  geminiApiKey: ''
 };
 
 // UI Elements
@@ -46,6 +47,7 @@ const settingsMode = document.getElementById('settings-mode');
 const settingsAutopaste = document.getElementById('settings-autopaste');
 const settingsHistory = document.getElementById('settings-history');
 const settingsHotkey = document.getElementById('settings-hotkey');
+const settingsApikey = document.getElementById('settings-apikey');
 const saveSettingsBtn = document.getElementById('save-settings-btn');
 const resetSettingsBtn = document.getElementById('reset-settings-btn');
 
@@ -114,6 +116,7 @@ async function loadSettings() {
     settingsAutopaste.checked = settings.autoPaste;
     settingsHistory.checked = settings.historyEnabled;
     settingsHotkey.value = settings.hotkey;
+    settingsApikey.value = settings.geminiApiKey || '';
 
     // Update displays
     shortcutDisplay.innerText = settings.hotkey;
@@ -130,7 +133,8 @@ saveSettingsBtn.addEventListener('click', async () => {
     defaultMode: settingsMode.value,
     autoPaste: settingsAutopaste.checked,
     historyEnabled: settingsHistory.checked,
-    hotkey: settingsHotkey.value.trim()
+    hotkey: settingsHotkey.value.trim(),
+    geminiApiKey: settingsApikey.value.trim()
   };
 
   try {
@@ -146,7 +150,8 @@ saveSettingsBtn.addEventListener('click', async () => {
     window.api.updateHotkey(saved.hotkey);
 
     // Refresh display
-    loadSettings();
+    await loadSettings();
+    await checkBackendHealth();
     alert('Settings saved successfully!');
   } catch (error) {
     console.error('Error saving settings:', error);
@@ -162,7 +167,8 @@ resetSettingsBtn.addEventListener('click', async () => {
       defaultMode: 'default',
       autoPaste: true,
       reviewBeforePaste: false,
-      historyEnabled: true
+      historyEnabled: true,
+      geminiApiKey: ''
     };
     try {
       await fetch(`${API_BASE}/settings`, {
@@ -453,7 +459,14 @@ window.api.onNotification((data) => {
 });
 
 // Run bootstrap checks
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const dynamicApiBase = await window.api.getApiUrl();
+    API_BASE = dynamicApiBase;
+    console.log(`[VoiceDraft Frontend] Connected to dynamic API Base: ${API_BASE}`);
+  } catch (error) {
+    console.error('Failed to get dynamic API URL from Electron main process:', error);
+  }
   checkBackendHealth();
   loadSettings();
   
