@@ -16,3 +16,5 @@ SpeakItHelper.exe
 *.db-wal
 *.db-shm
 *.db.bak-*
+WISPR_FLOW_REVERSE_ENGINEERING_BRIEF.md
+*.brief.md

@@ -4,6 +4,8 @@ import { AppDatabase } from '../storage/database';
 import { WindowManager } from '../windows/windowManager';
 import { logger } from '../logger';
 import { checkForUpdatesManual } from '../updater';
+import { productConfig } from '../../../product.config';
+import { runHardwareBenchmark } from '../providers/hardwareBenchmark';
 
 export function registerIpcHandlers(db: AppDatabase, windowManager: WindowManager): void {
   // --- Hub Handlers ---
@@ -108,6 +110,46 @@ export function registerIpcHandlers(db: AppDatabase, windowManager: WindowManage
     return await checkForUpdatesManual();
   });
 
+  ipcMain.handle('hub:get-hardware-profile', (event) => {
+    if (!validateSender(event, 'hub')) throw new Error('Unauthorized IPC sender');
+    return runHardwareBenchmark();
+  });
+
+  ipcMain.handle('hub:get-managed-policy', (event) => {
+    if (!validateSender(event, 'hub')) throw new Error('Unauthorized IPC sender');
+    return db.getEnterprisePolicy();
+  });
+
+  ipcMain.handle('hub:get-anonymized-stats', (event) => {
+    if (!validateSender(event, 'hub')) throw new Error('Unauthorized IPC sender');
+    return db.getAnonymizedStats(productConfig.version);
+  });
+
+  ipcMain.handle('hub:set-onboarding-step', (event, step: number) => {
+    if (!validateSender(event, 'hub')) throw new Error('Unauthorized IPC sender');
+    db.setOnboardingStepReached(step);
+    return { ok: true };
+  });
+
+  ipcMain.handle('hub:open-feedback-issue', (event, context?: { outcome?: string; error?: string; provider?: string }) => {
+    if (!validateSender(event, 'hub')) throw new Error('Unauthorized IPC sender');
+    const osInfo = `${process.platform} ${process.arch}`;
+    const version = productConfig.version;
+    const body = encodeURIComponent(
+      `### Feedback / Issue Report\n\n` +
+      `- **App Version:** ${version}\n` +
+      `- **OS / Environment:** ${osInfo}\n` +
+      `- **Provider:** ${context?.provider || 'default'}\n` +
+      `- **Outcome:** ${context?.outcome || 'User feedback'}\n` +
+      `- **Error Details:** ${context?.error || 'None'}\n\n` +
+      `### What happened?\n<!-- Describe what you experienced here (never include sensitive speech) -->\n\n` +
+      `### Expected behavior\n<!-- What did you expect to happen? -->\n`
+    );
+    const title = encodeURIComponent(`[Feedback] ${context?.error ? `Error: ${context.error}` : 'User Feedback'}`);
+    shell.openExternal(`${productConfig.repoUrl}/issues/new?title=${title}&body=${body}`);
+    return { ok: true };
+  });
+
   // --- Window Control Handlers ---
   ipcMain.on('window:minimize', (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
@@ -136,5 +178,20 @@ export function registerIpcHandlers(db: AppDatabase, windowManager: WindowManage
     if (windowManager.barWindow && !windowManager.barWindow.isDestroyed()) {
       windowManager.barWindow.setIgnoreMouseEvents(ignore, { forward: true });
     }
+  });
+
+  ipcMain.on('bar:open-feedback-issue', (event, reason?: string) => {
+    if (!validateSender(event, 'bar')) return;
+    const osInfo = `${process.platform} ${process.arch}`;
+    const version = productConfig.version;
+    const body = encodeURIComponent(
+      `### Feedback / Dictation Error Report\n\n` +
+      `- **App Version:** ${version}\n` +
+      `- **OS / Environment:** ${osInfo}\n` +
+      `- **Error Reason:** ${reason || 'Dictation failed'}\n\n` +
+      `### What happened?\n<!-- Describe what you experienced here -->\n`
+    );
+    const title = encodeURIComponent(`[Bug] Dictation failed: ${reason || 'Error'}`);
+    shell.openExternal(`${productConfig.repoUrl}/issues/new?title=${title}&body=${body}`);
   });
 }

@@ -37,6 +37,12 @@ export const hubApi = {
   close: () => ipcRenderer.send('window:close'),
   openLogs: () => ipcRenderer.invoke('hub:open-logs'),
   checkForUpdates: () => ipcRenderer.invoke('hub:check-for-updates'),
+  getHardwareProfile: () => ipcRenderer.invoke('hub:get-hardware-profile'),
+  getManagedPolicy: () => ipcRenderer.invoke('hub:get-managed-policy'),
+  getAnonymizedStats: () => ipcRenderer.invoke('hub:get-anonymized-stats'),
+  setOnboardingStep: (step: number) => ipcRenderer.invoke('hub:set-onboarding-step', step),
+  openFeedbackIssue: (context?: { outcome?: string; error?: string; provider?: string }) =>
+    ipcRenderer.invoke('hub:open-feedback-issue', context),
 
   // Listeners
   onDictationUpdated: (callback: (data: unknown) => void) => {

@@ -1,0 +1,29 @@
+PackageIdentifier: DecoyINDIA.SpeakIt
+PackageVersion: 0.9.0-beta.1
+PackageLocale: en-US
+Publisher: DecoyINDIA
+PublisherUrl: https://github.com/DecoyINDIA
+PublisherSupportUrl: https://github.com/DecoyINDIA/Speak-It/issues
+PrivacyUrl: https://github.com/DecoyINDIA/Speak-It/blob/main/docs/privacy.md
+Author: DecoyINDIA
+PackageName: SpeakIt
+PackageUrl: https://github.com/DecoyINDIA/Speak-It
+License: MIT
+LicenseUrl: https://github.com/DecoyINDIA/Speak-It/blob/main/LICENSE
+Copyright: Copyright (c) 2026 DecoyINDIA
+ShortDescription: Voice typing that understands Hinglish, cleans up your speech, and works offline.
+Description: |
+  SpeakIt is a free and open-source desktop voice dictation application for Windows 10 and 11.
+  Hold Ctrl + Win in any application, speak naturally in English or Hinglish, and release.
+  Clean, well-formatted text appears directly at your cursor. Works 100% offline or with free-tier cloud APIs.
+Moniker: speakit
+Tags:
+  - voice-typing
+  - speech-to-text
+  - dictation
+  - offline
+  - whisper
+  - hinglish
+ReleaseNotesUrl: https://github.com/DecoyINDIA/Speak-It/releases/tag/v0.9.0-beta.1
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0
