@@ -170,3 +170,120 @@ Output ONLY the rewritten text, nothing else. Do not say "Here is the rewritten 
     throw error;
   }
 }
+
+/**
+ * Wispr Flow Transform Engine: Polish, PromptEngineer, TurnToList, MakeMeSoundSmart, etc.
+ */
+export async function applyTransform(
+  text: string,
+  transformType: string,
+  customPrompt?: string,
+  customApiKey?: string
+): Promise<string> {
+  try {
+    const ai = getGenAIClient(customApiKey);
+
+    let instruction = '';
+    switch (transformType.toLowerCase()) {
+      case 'polishtransform':
+      case 'polish':
+        instruction = 'You are a master editor. Fix all typos, grammatical awkwardness, punctuation, and flow. Preserve original meaning. Return ONLY the polished text.';
+        break;
+      case 'promptengineertransform':
+      case 'prompt_engineer':
+        instruction = 'You are an elite Prompt Engineer. Transform this rough request into a high-performance LLM prompt with Persona, Task Objective, Constraints, and Output Format. Return ONLY the engineered prompt.';
+        break;
+      case 'turntolisttransform':
+      case 'turn_to_list':
+      case 'listify':
+        instruction = 'Convert this content into a clean, well-organized, readable Markdown bulleted or numbered list. Return ONLY the list.';
+        break;
+      case 'makemesoundsmart':
+      case 'professional':
+        instruction = 'Rewrite this text to sound articulate, clear, confident, and intellectually sharp for senior leadership. Return ONLY the rewritten text.';
+        break;
+      case 'whatdidimiss':
+        instruction = 'Critique this text and list critical missing assumptions, blind spots, ambiguities, and unanswered questions. Return as concise Markdown bullet points.';
+        break;
+      case 'translatetoenglishtransform':
+      case 'translate_en':
+        instruction = 'Translate this text (or Hinglish/slang/vernacular) into polished, natural, idiomatic English. Return ONLY the English translation.';
+        break;
+      default:
+        instruction = customPrompt || 'Improve and polish this text clearly and concisely. Return ONLY the result.';
+        break;
+    }
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [
+        instruction,
+        `Input text:\n"""\n${text}\n"""`
+      ],
+      config: {
+        temperature: 0.2
+      }
+    });
+
+    return response.text?.trim() || text;
+  } catch (error) {
+    console.error('Error applying transform:', error);
+    throw error;
+  }
+}
+
+/**
+ * Meeting Notes & Loopback Audio Summarizer
+ */
+export async function summarizeMeeting(
+  transcript: string,
+  customApiKey?: string
+): Promise<{ summary: string; decisions: string[]; actionItems: string[]; notes: string }> {
+  try {
+    const ai = getGenAIClient(customApiKey);
+
+    const prompt = `You are an executive Chief of Staff. Analyze the following meeting transcript and produce a structured JSON summary with:
+1. "summary": A 2-3 sentence executive summary.
+2. "decisions": Array of key decisions agreed upon during the meeting.
+3. "actionItems": Array of action items with owners and tasks (e.g. "Alice: Send revised pricing proposal by Friday").
+4. "notes": Comprehensive structured markdown notes detailing discussion points.
+
+Transcript:
+"""
+${transcript}
+"""`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [prompt],
+      config: {
+        temperature: 0.1,
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: 'OBJECT',
+          properties: {
+            summary: { type: 'STRING' },
+            decisions: { type: 'ARRAY', items: { type: 'STRING' } },
+            actionItems: { type: 'ARRAY', items: { type: 'STRING' } },
+            notes: { type: 'STRING' }
+          },
+          required: ['summary', 'decisions', 'actionItems', 'notes']
+        }
+      }
+    });
+
+    if (response.text) {
+      return JSON.parse(response.text.trim());
+    }
+
+    return {
+      summary: 'Meeting transcript analyzed.',
+      decisions: [],
+      actionItems: [],
+      notes: transcript
+    };
+  } catch (error) {
+    console.error('Error summarizing meeting:', error);
+    throw error;
+  }
+}

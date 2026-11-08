@@ -1,21 +1,21 @@
 let API_BASE = 'http://localhost:3000/api';
 
 // State variables
-let mediaRecorder = null;
-let audioChunks = [];
 let isRecording = false;
 let userSettings = {
   hotkey: 'Alt+Space',
+  hotkeyBehavior: 'push_to_talk',
   defaultMode: 'default',
   autoPaste: true,
-  reviewBeforePaste: false,
   historyEnabled: true,
   geminiApiKey: ''
 };
 
-// UI Elements
+// UI Elements: Navigation & Pages
 const pages = {
   home: document.getElementById('page-home'),
+  transforms: document.getElementById('page-transforms'),
+  meeting: document.getElementById('page-meeting'),
   history: document.getElementById('page-history'),
   dictionary: document.getElementById('page-dictionary'),
   settings: document.getElementById('page-settings')
@@ -32,6 +32,32 @@ const shortcutDisplay = document.getElementById('shortcut-display');
 const activeModeDisplay = document.getElementById('active-mode-display');
 const activePasteDisplay = document.getElementById('active-paste-display');
 
+// Transforms UI
+let currentTransform = 'polish';
+const transformCards = document.querySelectorAll('.transform-card');
+const grabSelectionBtn = document.getElementById('grab-selection-btn');
+const transformInput = document.getElementById('transform-input');
+const runTransformBtn = document.getElementById('run-transform-btn');
+const transformStatus = document.getElementById('transform-status');
+const transformOutput = document.getElementById('transform-output');
+const pasteBackBtn = document.getElementById('paste-back-btn');
+
+// Meeting UI
+let isMeetingRecording = false;
+let meetingStreamManager = null;
+let meetingTranscriptAccumulator = '';
+const meetingRecordBtn = document.getElementById('meeting-record-btn');
+const summarizeMeetingBtn = document.getElementById('summarize-meeting-btn');
+const meetingStatus = document.getElementById('meeting-status');
+const meetingDesc = document.getElementById('meeting-desc');
+const meetingIcon = document.getElementById('meeting-icon');
+const meetingResultsContainer = document.getElementById('meeting-results-container');
+const meetingSummaryText = document.getElementById('meeting-summary-text');
+const meetingDecisionsList = document.getElementById('meeting-decisions-list');
+const meetingActionsList = document.getElementById('meeting-actions-list');
+const meetingDetailedNotes = document.getElementById('meeting-detailed-notes');
+const copyMeetingNotesBtn = document.getElementById('copy-meeting-notes-btn');
+
 // Dictionary UI
 const dictForm = document.getElementById('dict-form');
 const dictTermInput = document.getElementById('dict-term');
@@ -44,12 +70,16 @@ const clearHistoryBtn = document.getElementById('clear-history-btn');
 
 // Settings UI
 const settingsMode = document.getElementById('settings-mode');
+const settingsHotkeyBehavior = document.getElementById('settings-hotkey-behavior');
 const settingsAutopaste = document.getElementById('settings-autopaste');
 const settingsHistory = document.getElementById('settings-history');
 const settingsHotkey = document.getElementById('settings-hotkey');
 const settingsApikey = document.getElementById('settings-apikey');
 const saveSettingsBtn = document.getElementById('save-settings-btn');
 const resetSettingsBtn = document.getElementById('reset-settings-btn');
+
+// Audio Stream Manager instance (16kHz AudioWorklet + streaming WebSocket)
+const audioStreamManager = new AudioStreamManager();
 
 // Navigation handler
 navItems.forEach(item => {
@@ -60,21 +90,18 @@ navItems.forEach(item => {
 });
 
 function switchPage(pageId) {
-  // Update nav state
   navItems.forEach(nav => nav.classList.remove('active'));
   const activeNav = Array.from(navItems).find(n => n.getAttribute('data-page') === pageId);
   if (activeNav) activeNav.classList.add('active');
 
-  // Update visible sections
   Object.keys(pages).forEach(key => {
-    if (key === pageId) {
+    if (key === pageId && pages[key]) {
       pages[key].classList.add('active');
-    } else {
+    } else if (pages[key]) {
       pages[key].classList.remove('active');
     }
   });
 
-  // Load page-specific data
   if (pageId === 'history') {
     loadHistory();
   } else if (pageId === 'dictionary') {
@@ -99,7 +126,7 @@ async function checkBackendHealth() {
     apiKeyAlert.classList.add('active');
     apiKeyAlert.querySelector('div').innerHTML = `
       <strong>Backend Service Offline</strong><br>
-      Could not connect to the local server. Ensure the backend is running on <code>http://localhost:3000</code>.
+      Could not connect to the local server. Ensure backend is running on <code>http://localhost:3000</code>.
     `;
   }
 }
@@ -109,80 +136,280 @@ async function loadSettings() {
   try {
     const res = await fetch(`${API_BASE}/settings`);
     const settings = await res.json();
-    userSettings = settings;
+    userSettings = Object.assign(userSettings, settings);
 
-    // Update UI elements
-    settingsMode.value = settings.defaultMode;
-    settingsAutopaste.checked = settings.autoPaste;
-    settingsHistory.checked = settings.historyEnabled;
-    settingsHotkey.value = settings.hotkey;
-    settingsApikey.value = settings.geminiApiKey || '';
+    if (settingsMode) settingsMode.value = userSettings.defaultMode || 'default';
+    if (settingsHotkeyBehavior) settingsHotkeyBehavior.value = userSettings.hotkeyBehavior || 'push_to_talk';
+    if (settingsAutopaste) settingsAutopaste.checked = userSettings.autoPaste !== false;
+    if (settingsHistory) settingsHistory.checked = userSettings.historyEnabled !== false;
+    if (settingsHotkey) settingsHotkey.value = userSettings.hotkey || 'Alt+Space';
+    if (settingsApikey) settingsApikey.value = userSettings.geminiApiKey || '';
 
-    // Update displays
-    shortcutDisplay.innerText = settings.hotkey;
-    activeModeDisplay.innerText = settings.defaultMode;
-    activePasteDisplay.innerText = settings.autoPaste ? 'Enabled' : 'Disabled';
+    if (shortcutDisplay) shortcutDisplay.innerText = userSettings.hotkey;
+    if (activeModeDisplay) activeModeDisplay.innerText = userSettings.defaultMode;
+    if (activePasteDisplay) activePasteDisplay.innerText = userSettings.autoPaste ? 'Enabled' : 'Disabled';
   } catch (error) {
     console.error('Error fetching settings:', error);
   }
 }
 
 // Save settings
-saveSettingsBtn.addEventListener('click', async () => {
-  const updatedSettings = {
-    defaultMode: settingsMode.value,
-    autoPaste: settingsAutopaste.checked,
-    historyEnabled: settingsHistory.checked,
-    hotkey: settingsHotkey.value.trim(),
-    geminiApiKey: settingsApikey.value.trim()
-  };
-
-  try {
-    const res = await fetch(`${API_BASE}/settings`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedSettings)
-    });
-    const saved = await res.json();
-    userSettings = saved;
-
-    // Signal main process to update the global hotkey
-    window.api.updateHotkey(saved.hotkey);
-
-    // Refresh display
-    await loadSettings();
-    await checkBackendHealth();
-    alert('Settings saved successfully!');
-  } catch (error) {
-    console.error('Error saving settings:', error);
-    alert('Failed to save settings.');
-  }
-});
-
-// Reset settings
-resetSettingsBtn.addEventListener('click', async () => {
-  if (confirm('Are you sure you want to reset settings to defaults?')) {
-    const defaults = {
-      hotkey: 'Alt+Space',
-      defaultMode: 'default',
-      autoPaste: true,
-      reviewBeforePaste: false,
-      historyEnabled: true,
-      geminiApiKey: ''
+if (saveSettingsBtn) {
+  saveSettingsBtn.addEventListener('click', async () => {
+    const updatedSettings = {
+      defaultMode: settingsMode.value,
+      hotkeyBehavior: settingsHotkeyBehavior ? settingsHotkeyBehavior.value : 'push_to_talk',
+      autoPaste: settingsAutopaste.checked,
+      historyEnabled: settingsHistory.checked,
+      hotkey: settingsHotkey.value.trim(),
+      geminiApiKey: settingsApikey.value.trim()
     };
+
     try {
-      await fetch(`${API_BASE}/settings`, {
+      const res = await fetch(`${API_BASE}/settings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(defaults)
+        body: JSON.stringify(updatedSettings)
       });
-      window.api.updateHotkey(defaults.hotkey);
-      loadSettings();
-    } catch (e) {
-      console.error(e);
+      const saved = await res.json();
+      userSettings = Object.assign(userSettings, saved);
+
+      window.api.updateHotkey(saved.hotkey);
+      if (window.api.setHotkeyMode) {
+        window.api.setHotkeyMode(saved.hotkeyBehavior || 'push_to_talk');
+      }
+
+      await loadSettings();
+      await checkBackendHealth();
+      alert('Settings saved successfully!');
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      alert('Failed to save settings.');
     }
-  }
+  });
+}
+
+// Reset settings
+if (resetSettingsBtn) {
+  resetSettingsBtn.addEventListener('click', async () => {
+    if (confirm('Reset settings to defaults?')) {
+      const defaults = {
+        hotkey: 'Alt+Space',
+        hotkeyBehavior: 'push_to_talk',
+        defaultMode: 'default',
+        autoPaste: true,
+        historyEnabled: true,
+        geminiApiKey: ''
+      };
+      try {
+        await fetch(`${API_BASE}/settings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(defaults)
+        });
+        window.api.updateHotkey(defaults.hotkey);
+        if (window.api.setHotkeyMode) window.api.setHotkeyMode(defaults.hotkeyBehavior);
+        loadSettings();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  });
+}
+
+// AI Transforms Page Handlers
+transformCards.forEach(card => {
+  card.addEventListener('click', () => {
+    transformCards.forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    currentTransform = card.getAttribute('data-transform');
+  });
 });
+
+if (grabSelectionBtn) {
+  grabSelectionBtn.addEventListener('click', async () => {
+    try {
+      grabSelectionBtn.innerText = 'Capturing...';
+      const res = await window.api.copySelection();
+      if (res && res.text) {
+        transformInput.value = res.text;
+        transformStatus.innerText = `Captured ${res.text.length} characters from active app.`;
+      } else {
+        transformStatus.innerText = 'No text selected. Please highlight text in an app first.';
+      }
+    } catch (err) {
+      console.error('Failed to grab selection:', err);
+      transformStatus.innerText = 'Failed to copy selection.';
+    } finally {
+      grabSelectionBtn.innerText = '📥 Grab Selection from Active App';
+    }
+  });
+}
+
+if (runTransformBtn) {
+  runTransformBtn.addEventListener('click', async () => {
+    const text = transformInput.value.trim();
+    if (!text) {
+      alert('Please enter or grab text to transform.');
+      return;
+    }
+
+    runTransformBtn.disabled = true;
+    runTransformBtn.innerText = 'Transforming...';
+    transformStatus.innerText = 'Applying Gemini transform...';
+
+    try {
+      const res = await fetch(`${API_BASE}/transforms/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text,
+          transformType: currentTransform
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || 'Transform failed.');
+      }
+
+      const result = await res.json();
+      transformOutput.value = result.text;
+      transformStatus.innerText = `Done! Word count: ${result.wordCount}`;
+      pasteBackBtn.disabled = false;
+    } catch (err) {
+      console.error('Transform error:', err);
+      transformStatus.innerText = `Error: ${err.message}`;
+    } finally {
+      runTransformBtn.disabled = false;
+      runTransformBtn.innerText = 'Apply Transform';
+    }
+  });
+}
+
+if (pasteBackBtn) {
+  pasteBackBtn.addEventListener('click', async () => {
+    const text = transformOutput.value.trim();
+    if (!text) return;
+    try {
+      pasteBackBtn.disabled = true;
+      pasteBackBtn.innerText = 'Pasting...';
+      await window.api.executePaste(text);
+      transformStatus.innerText = 'Text pasted back into active window successfully!';
+    } catch (err) {
+      console.error('Paste error:', err);
+      transformStatus.innerText = 'Failed to paste text.';
+    } finally {
+      pasteBackBtn.disabled = false;
+      pasteBackBtn.innerText = '🚀 Replace Selection in App';
+    }
+  });
+}
+
+// Meeting Mode Logic
+if (meetingRecordBtn) {
+  meetingRecordBtn.addEventListener('click', async () => {
+    if (isMeetingRecording) {
+      // Stop meeting recording
+      isMeetingRecording = false;
+      meetingRecordBtn.innerText = 'Start Meeting Recording';
+      meetingRecordBtn.classList.remove('btn-danger');
+      meetingRecordBtn.classList.add('btn-primary');
+      meetingStatus.innerText = 'Meeting Stopped';
+      meetingDesc.innerText = 'Processing full meeting audio stream...';
+
+      try {
+        const result = await meetingStreamManager.stopStream(API_BASE, { mode: 'notes' });
+        if (result && result.text) {
+          meetingTranscriptAccumulator = result.text;
+          meetingDesc.innerText = `Captured ${result.wordCount || result.text.split(/\s+/).length} words. Click 'Summarize Notes' to generate executive minutes.`;
+          summarizeMeetingBtn.disabled = false;
+        } else {
+          meetingDesc.innerText = 'No clear speech captured during meeting.';
+        }
+      } catch (err) {
+        console.error('Meeting stream error:', err);
+        meetingDesc.innerText = `Error processing meeting audio: ${err.message}`;
+      }
+    } else {
+      // Start meeting recording
+      try {
+        meetingStreamManager = new AudioStreamManager();
+        await meetingStreamManager.startStream(API_BASE, { mode: 'notes' });
+        isMeetingRecording = true;
+        meetingRecordBtn.innerText = 'Stop Meeting Recording';
+        meetingRecordBtn.classList.remove('btn-primary');
+        meetingRecordBtn.classList.add('btn-danger');
+        meetingStatus.innerText = 'Recording Meeting (Loopback + Mic)';
+        meetingDesc.innerText = 'Capturing speaker dialogue in 16kHz mono...';
+        summarizeMeetingBtn.disabled = true;
+      } catch (err) {
+        console.error('Failed to start meeting stream:', err);
+        alert('Could not start meeting recording: ' + err.message);
+      }
+    }
+  });
+}
+
+if (summarizeMeetingBtn) {
+  summarizeMeetingBtn.addEventListener('click', async () => {
+    if (!meetingTranscriptAccumulator) return;
+    summarizeMeetingBtn.disabled = true;
+    summarizeMeetingBtn.innerText = 'Summarizing...';
+
+    try {
+      const res = await fetch(`${API_BASE}/meetings/summarize`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcript: meetingTranscriptAccumulator })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || 'Failed to summarize meeting.');
+      }
+
+      const data = await res.json();
+      meetingSummaryText.innerText = data.summary || 'Summary unavailable.';
+      
+      meetingDecisionsList.innerHTML = '';
+      (data.decisions || []).forEach(d => {
+        const li = document.createElement('li');
+        li.innerText = d;
+        meetingDecisionsList.appendChild(li);
+      });
+
+      meetingActionsList.innerHTML = '';
+      (data.actionItems || []).forEach(a => {
+        const li = document.createElement('li');
+        li.innerText = a;
+        meetingActionsList.appendChild(li);
+      });
+
+      meetingDetailedNotes.innerText = data.notes || '';
+      meetingResultsContainer.style.display = 'block';
+    } catch (err) {
+      console.error('Summarize error:', err);
+      alert('Error summarizing meeting: ' + err.message);
+    } finally {
+      summarizeMeetingBtn.disabled = false;
+      summarizeMeetingBtn.innerText = 'Summarize Notes';
+    }
+  });
+}
+
+if (copyMeetingNotesBtn) {
+  copyMeetingNotesBtn.addEventListener('click', () => {
+    const summary = meetingSummaryText.innerText;
+    const decisions = Array.from(meetingDecisionsList.querySelectorAll('li')).map(li => `- ${li.innerText}`).join('\n');
+    const actions = Array.from(meetingActionsList.querySelectorAll('li')).map(li => `- ${li.innerText}`).join('\n');
+    const notes = meetingDetailedNotes.innerText;
+
+    const fullMarkdown = `# Meeting Notes\n\n## Executive Summary\n${summary}\n\n## Key Decisions\n${decisions}\n\n## Action Items\n${actions}\n\n## Discussion Details\n${notes}`;
+    navigator.clipboard.writeText(fullMarkdown);
+    alert('Meeting notes copied to clipboard in Markdown format!');
+  });
+}
 
 // Dictionary Management
 async function loadDictionary() {
@@ -216,7 +443,6 @@ async function loadDictionary() {
       dictContainer.appendChild(card);
     });
 
-    // Attach delete listeners
     document.querySelectorAll('.delete-dict-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         const id = e.target.getAttribute('data-id');
@@ -235,32 +461,29 @@ async function loadDictionary() {
   }
 }
 
-// Add Dictionary word
-dictForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const term = dictTermInput.value.trim();
-  const soundsLike = dictSoundsInput.value.trim();
+if (dictForm) {
+  dictForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const term = dictTermInput.value.trim();
+    const soundsLike = dictSoundsInput.value.trim();
+    if (!term) return;
 
-  if (!term) return;
-
-  try {
-    const res = await fetch(`${API_BASE}/dictionary`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ term, soundsLike })
-    });
-    if (res.ok) {
-      dictTermInput.value = '';
-      dictSoundsInput.value = '';
-      loadDictionary();
-    } else {
-      const err = await res.json();
-      alert(`Error: ${err.error || 'Failed to add word'}`);
+    try {
+      const res = await fetch(`${API_BASE}/dictionary`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ term, soundsLike })
+      });
+      if (res.ok) {
+        dictTermInput.value = '';
+        dictSoundsInput.value = '';
+        loadDictionary();
+      }
+    } catch (error) {
+      console.error(error);
     }
-  } catch (error) {
-    console.error(error);
-  }
-});
+  });
+}
 
 // History Management
 async function loadHistory() {
@@ -302,115 +525,92 @@ async function loadHistory() {
   }
 }
 
-// Clear History
-clearHistoryBtn.addEventListener('click', async () => {
-  if (confirm('Clear all local dictation logs?')) {
-    try {
-      await fetch(`${API_BASE}/history`, { method: 'DELETE' });
-      loadHistory();
-    } catch (e) {
-      console.error(e);
+if (clearHistoryBtn) {
+  clearHistoryBtn.addEventListener('click', async () => {
+    if (confirm('Clear all local dictation logs?')) {
+      try {
+        await fetch(`${API_BASE}/history`, { method: 'DELETE' });
+        loadHistory();
+      } catch (e) {
+        console.error(e);
+      }
     }
-  }
-});
+  });
+}
 
-// HTML5 Audio Recording logic
+// 16kHz Audio Streaming logic
 async function startRecording() {
   try {
-    audioChunks = [];
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    
-    // WebM format is standard in Chromium renderer
-    const options = { mimeType: 'audio/webm' };
-    mediaRecorder = new MediaRecorder(stream, options);
-    
-    mediaRecorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        audioChunks.push(event.data);
-      }
-    };
-
-    mediaRecorder.onstop = async () => {
-      // Release microphone tracks
-      stream.getTracks().forEach(track => track.stop());
-      
-      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-      await processAudioBlob(audioBlob);
-    };
-
-    mediaRecorder.start();
     isRecording = true;
-    
-    // Update main process of recording active (displays indicator)
     window.api.setRecordingState(true);
 
-    // Update Dashboard UI
-    statusTitle.innerText = 'Listening...';
-    statusDesc.innerText = 'Dictating voice input. Press global shortcut or the button to stop.';
+    statusTitle.innerText = 'Listening (16kHz Stream)...';
+    statusDesc.innerText = 'Streaming audio frames in real time. Release hotkey or press button to stop.';
     recordBtn.innerText = 'Stop Recording';
     recordBtn.classList.remove('btn-primary');
     recordBtn.classList.add('btn-danger');
+
+    audioStreamManager.onVolumeChange = (db, rms) => {
+      const normalized = Math.min(1.0, Math.max(0, (db + 60) / 60));
+      if (window.api.onAudioLevel) {
+        // Broadcast audio level to indicator floating widget
+      }
+    };
+
+    await audioStreamManager.startStream(API_BASE, {
+      mode: userSettings.defaultMode,
+      language: 'auto'
+    });
   } catch (error) {
-    console.error('Error accessing microphone:', error);
+    console.error('Error starting audio stream:', error);
+    isRecording = false;
+    window.api.setRecordingState(false);
     alert('Microphone access denied or unavailable. Please check system permissions.');
   }
 }
 
-function stopRecording() {
-  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-    mediaRecorder.stop();
-  }
+async function stopRecording() {
+  if (!isRecording) return;
   isRecording = false;
-  window.api.setRecordingState(false); // Transitions indicator to 'processing'
-}
+  window.api.setRecordingState(false);
 
-function toggleRecording() {
-  if (isRecording) {
-    stopRecording();
-  } else {
-    startRecording();
-  }
-}
-
-// Send Audio Blob to Backend API
-async function processAudioBlob(blob) {
   statusTitle.innerText = 'Processing...';
   statusDesc.innerText = 'Gemini API is transcribing and cleaning up your thoughts...';
   recordBtn.innerText = 'Processing...';
   recordBtn.disabled = true;
 
   try {
-    const formData = new FormData();
-    formData.append('audio', blob, 'recording.webm');
-    formData.append('mode', userSettings.defaultMode);
-
-    const res = await fetch(`${API_BASE}/dictations/process`, {
-      method: 'POST',
-      body: formData
+    const result = await audioStreamManager.stopStream(API_BASE, {
+      mode: userSettings.defaultMode
     });
 
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.message || 'Error processing audio on backend.');
-    }
-
-    const result = await res.json();
-    
-    if (result.text && result.text.trim()) {
-      // Instruct main process to paste text at cursor
-      if (userSettings.autoPaste) {
-        window.api.executePaste(result.text);
-      } else {
-        // Just copy text to clipboard as secondary option
-        navigator.clipboard.writeText(result.text);
+    if (result && result.text && result.text.trim()) {
+      let detectedLang = { code: 'en', name: 'English' };
+      if (window.LanguageDetector && window.LanguageDetector.identifyLanguage) {
+        detectedLang = window.LanguageDetector.identifyLanguage(result.text);
       }
 
-      // Signal success state to indicator overlay
-      window.api.showIndicatorState('success');
+      let finalText = result.text;
+      try {
+        const ctx = await window.api.getContext();
+        if (window.FormattingEngine && window.FormattingEngine.applySmartFormatting) {
+          finalText = window.FormattingEngine.applySmartFormatting(finalText, ctx);
+        }
+      } catch (err) {
+        console.warn('Context lookup error during paste:', err);
+      }
+
+      if (userSettings.autoPaste) {
+        window.api.executePaste(finalText);
+      } else {
+        navigator.clipboard.writeText(finalText);
+      }
+
+      window.api.showIndicatorState('success', { language: detectedLang.name });
       setTimeout(() => window.api.hideIndicator(), 1500);
 
       statusTitle.innerText = 'Done!';
-      statusDesc.innerText = `Pasted: "${result.text.substring(0, 60)}..."`;
+      statusDesc.innerText = `[${detectedLang.name}] Pasted: "${finalText.substring(0, 60)}..."`;
     } else {
       statusTitle.innerText = 'No Speech Detected';
       statusDesc.innerText = 'Try speaking closer to your microphone or check gain levels.';
@@ -421,20 +621,26 @@ async function processAudioBlob(blob) {
     console.error('Processing error:', error);
     statusTitle.innerText = 'Failed';
     statusDesc.innerText = error.message || 'An error occurred during transcription.';
-    
+
     window.api.showIndicatorState('error');
     setTimeout(() => window.api.hideIndicator(), 3000);
   } finally {
-    // Reset dashboard button
     recordBtn.disabled = false;
     recordBtn.innerText = 'Start Test Recording';
     recordBtn.classList.remove('btn-danger');
     recordBtn.classList.add('btn-primary');
-    
-    // Auto-update dashboard displays if history was written
+
     if (userSettings.historyEnabled) {
       loadHistory();
     }
+  }
+}
+
+function toggleRecording() {
+  if (isRecording) {
+    stopRecording();
+  } else {
+    startRecording();
   }
 }
 
@@ -443,9 +649,21 @@ recordBtn.addEventListener('click', () => {
   toggleRecording();
 });
 
-// Handle IPC triggers from native global hotkey pressed
+// Push-To-Talk & Toggle Hotkey Triggers
 window.api.onRecordingHotkey(() => {
   toggleRecording();
+});
+
+window.api.onStartRecording(() => {
+  if (!isRecording) {
+    startRecording();
+  }
+});
+
+window.api.onStopRecording(() => {
+  if (isRecording) {
+    stopRecording();
+  }
 });
 
 // Navigate routing
@@ -470,6 +688,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   checkBackendHealth();
   loadSettings();
   
-  // Refresh backend status every 5 seconds Passive check
   setInterval(checkBackendHealth, 5000);
 });

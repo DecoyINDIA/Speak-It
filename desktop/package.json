@@ -28,9 +28,18 @@
     },
     "files": [
       "main.js",
+      "nativeHelperManager.js",
+      "formattingEngine.js",
       "preload.js",
       "renderer/**/*",
+      "native-helper/**/*",
       "backend-dist/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "native-helper/SpeakItHelper.exe",
+        "to": "native-helper/SpeakItHelper.exe"
+      }
     ],
     "win": {
       "target": "nsis",

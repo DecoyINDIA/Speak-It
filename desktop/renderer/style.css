@@ -366,5 +366,22 @@ input:focus, select:focus {
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }
-  to { opacity: opacity: 1; transform: translateY(0); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Transform Cards */
+.transform-card {
+  transition: all 0.2s ease;
+  border: 1px solid var(--border-glow);
+}
+
+.transform-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.transform-card.active {
+  border-color: var(--color-primary);
+  background: rgba(245, 78, 0, 0.08);
+  box-shadow: 0 0 16px rgba(245, 78, 0, 0.25);
 }

@@ -15,61 +15,109 @@
     .indicator-container {
       display: flex;
       align-items: center;
-      justify-content: flex-start;
-      gap: 12px;
-      background: rgba(15, 16, 17, 0.9);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(14, 15, 17, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 999px;
-      padding: 10px 20px;
-      height: 48px;
+      padding: 8px 16px;
+      height: 44px;
       box-sizing: border-box;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 1px 1px rgba(255, 255, 255, 0.05);
       color: #fff;
     }
 
+    .left-section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     .orb {
-      width: 14px;
-      height: 14px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
-      background: #f54e00; /* Cursor Orange voltage */
-      transition: all 0.3s ease;
+      background: #f54e00; /* Cursor Orange */
+      transition: all 0.25s ease;
+      flex-shrink: 0;
     }
 
     .pulsing {
-      animation: pulse 1.2s infinite alternate;
+      animation: pulse 1.1s infinite alternate ease-in-out;
     }
 
     .spinning {
       border: 2px solid rgba(255, 255, 255, 0.2);
-      border-top: 2px solid #5e6ad2; /* Linear Lavender */
+      border-top: 2px solid #5e6ad2; /* Lavender */
       background: transparent;
-      animation: spin 0.8s linear infinite;
+      animation: spin 0.75s linear infinite;
     }
 
     .success {
-      background: #10b981; /* Success Green */
+      background: #10b981; /* Green */
+      box-shadow: 0 0 8px #10b981;
     }
 
     .error {
-      background: #ef4444; /* Error Red */
+      background: #ef4444; /* Red */
+      box-shadow: 0 0 8px #ef4444;
     }
 
     .label {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
       letter-spacing: -0.01em;
       white-space: nowrap;
+      color: #f3f4f6;
+    }
+
+    /* Mini Audio Waveform Visualizer */
+    .wave-container {
+      display: flex;
+      align-items: center;
+      gap: 2.5px;
+      height: 16px;
+    }
+
+    .bar {
+      width: 2.5px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 2px;
+      transition: height 0.08s ease, background-color 0.2s ease;
+    }
+
+    .active-bar {
+      background: #f54e00;
+    }
+
+    /* Badges */
+    .badge {
+      display: none;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #9ca3af;
+      letter-spacing: 0.02em;
+    }
+
+    .badge.active {
+      display: inline-block;
     }
 
     @keyframes pulse {
       0% {
         transform: scale(0.85);
-        box-shadow: 0 0 0 0 rgba(245, 78, 0, 0.7);
+        box-shadow: 0 0 0 0 rgba(245, 78, 0, 0.6);
       }
       100% {
-        transform: scale(1.15);
-        box-shadow: 0 0 10px 4px rgba(245, 78, 0, 0.3);
+        transform: scale(1.18);
+        box-shadow: 0 0 10px 4px rgba(245, 78, 0, 0.35);
       }
     }
 
@@ -81,8 +129,20 @@
 </head>
 <body>
   <div class="indicator-container">
-    <div id="orb" class="orb pulsing"></div>
-    <div id="label" class="label">Listening...</div>
+    <div class="left-section">
+      <div id="orb" class="orb pulsing"></div>
+      <div id="label" class="label">Listening...</div>
+    </div>
+    
+    <div id="wave-container" class="wave-container">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+
+    <div id="badge" class="badge"></div>
   </div>
   
   <script src="indicator.js"></script>

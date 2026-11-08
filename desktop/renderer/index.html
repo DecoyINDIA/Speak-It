@@ -18,6 +18,12 @@
         <div class="nav-item active" data-page="home">
           <span>🎤</span> Dashboard
         </div>
+        <div class="nav-item" data-page="transforms">
+          <span>✨</span> AI Transforms
+        </div>
+        <div class="nav-item" data-page="meeting">
+          <span>🎙️</span> Meeting Mode
+        </div>
         <div class="nav-item" data-page="history">
           <span>📜</span> History
         </div>
@@ -30,7 +36,7 @@
       </div>
       
       <div style="font-size: 11px; color: var(--text-muted); text-align: center;">
-        v1.0.0 (MVP)
+        Wispr Flow Engine v2.0
       </div>
     </div>
 
@@ -41,7 +47,7 @@
         <span>⚠️</span>
         <div style="flex: 1;">
           <strong>Gemini API Key Missing</strong><br>
-          Please configure your <code>GEMINI_API_KEY</code> in the <code>backend/.env</code> file and restart the backend.
+          Please configure your <code>GEMINI_API_KEY</code> in the <code>backend/.env</code> file or on the Settings page.
         </div>
       </div>
 
@@ -52,8 +58,8 @@
         <div class="card" style="text-align: center; padding: 40px 20px;">
           <div style="font-size: 48px; margin-bottom: 16px;">🎤</div>
           <h3 id="status-title" style="margin-top: 0; font-size: 20px;">Ready to Write</h3>
-          <p id="status-desc" style="color: var(--text-muted); max-width: 400px; margin: 0 auto 24px; font-size: 14px;">
-            Press your global hotkey <strong id="shortcut-display">Alt+Space</strong> globally in any application to toggle dictation.
+          <p id="status-desc" style="color: var(--text-muted); max-width: 440px; margin: 0 auto 24px; font-size: 14px;">
+            Hold or press your global hotkey <strong id="shortcut-display">Alt+Space</strong> anywhere in Windows. Text is injected instantly via native Win32 SendInput.
           </p>
           
           <!-- Test Record Button -->
@@ -62,17 +68,138 @@
           </button>
         </div>
 
+        <div class="grid-2">
+          <div class="card">
+            <h3 style="margin-top: 0; font-size: 16px;">Active Engine</h3>
+            <p style="color: var(--text-muted); font-size: 13px;">
+              Running 16,000 Hz Mono AudioWorklet + Win32 Low-Level Keyboard Hook.
+            </p>
+            <div style="display: flex; gap: 8px; align-items: center; margin-top: 12px;">
+              <span style="font-size: 12px; color: #10b981;">● Native Helper Active</span>
+              <span style="font-size: 12px; color: var(--text-muted);">&bull; Sub-10ms Paste</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="margin-top: 0; font-size: 16px;">Context & Mode</h3>
+            <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-muted); margin-top: 8px;">
+              <div>Current Mode: <strong id="active-mode-display" style="color: var(--text-main);">Default</strong></div>
+              <div>Auto-Paste: <strong id="active-paste-display" style="color: var(--text-main);">Enabled</strong></div>
+              <div>Caret Tracking: <strong style="color: #10b981;">UI Automation AX</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: AI Transforms -->
+      <div id="page-transforms" class="page-section">
+        <h2>AI Selection Transforms</h2>
+        <p style="color: var(--text-muted); font-size: 14px; margin-top: -12px; margin-bottom: 24px;">
+          Select text in any application (Slack, Word, Browser, IDE), grab it with one click, apply an AI transform, and replace it in place.
+        </p>
+
+        <div class="grid-3" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px;">
+          <div class="card transform-card active" data-transform="polish" style="cursor: pointer; padding: 14px;">
+            <div style="font-size: 20px;">✍️</div>
+            <div style="font-weight: 600; font-size: 14px; margin-top: 6px;">Polish</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Fix grammar, flow, and typos</div>
+          </div>
+          <div class="card transform-card" data-transform="prompt_engineer" style="cursor: pointer; padding: 14px;">
+            <div style="font-size: 20px;">🎯</div>
+            <div style="font-weight: 600; font-size: 14px; margin-top: 6px;">Prompt Engineer</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Convert thought to LLM prompt</div>
+          </div>
+          <div class="card transform-card" data-transform="turn_to_list" style="cursor: pointer; padding: 14px;">
+            <div style="font-size: 20px;">📋</div>
+            <div style="font-weight: 600; font-size: 14px; margin-top: 6px;">Turn to List</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Convert to bulleted action items</div>
+          </div>
+          <div class="card transform-card" data-transform="professional" style="cursor: pointer; padding: 14px;">
+            <div style="font-size: 20px;">💼</div>
+            <div style="font-weight: 600; font-size: 14px; margin-top: 6px;">Make Me Sound Smart</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Executive business tone</div>
+          </div>
+          <div class="card transform-card" data-transform="whatdidimiss" style="cursor: pointer; padding: 14px;">
+            <div style="font-size: 20px;">🔍</div>
+            <div style="font-weight: 600; font-size: 14px; margin-top: 6px;">What Did I Miss?</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Gaps, risks & blind spots</div>
+          </div>
+          <div class="card transform-card" data-transform="translate_en" style="cursor: pointer; padding: 14px;">
+            <div style="font-size: 20px;">🌐</div>
+            <div style="font-weight: 600; font-size: 14px; margin-top: 6px;">Translate to English</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Any language or Hinglish</div>
+          </div>
+        </div>
+
         <div class="card">
-          <h3 style="margin-top: 0; font-size: 16px; font-weight: 600;">Active Configuration</h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
-            <div>
-              <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Writing Mode</div>
-              <div id="active-mode-display" style="font-size: 18px; font-weight: 500; margin-top: 4px; color: var(--color-primary); text-transform: capitalize;">Default</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="margin: 0; font-size: 15px;">Input Selection</h3>
+            <button id="grab-selection-btn" class="btn btn-secondary" style="padding: 6px 14px; font-size: 12px;">
+              📥 Grab Selection from Active App
+            </button>
+          </div>
+          <textarea id="transform-input" placeholder="Type text here or click 'Grab Selection'..." style="width: 100%; height: 90px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glow); border-radius: 8px; color: #fff; padding: 10px; font-family: inherit; font-size: 13px; box-sizing: border-box; resize: vertical;"></textarea>
+
+          <div style="margin-top: 14px; display: flex; gap: 12px; align-items: center;">
+            <button id="run-transform-btn" class="btn btn-primary">Apply Transform</button>
+            <span id="transform-status" style="font-size: 12px; color: var(--text-muted);"></span>
+          </div>
+
+          <div style="margin-top: 18px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <h3 style="margin: 0; font-size: 15px;">Transformed Output</h3>
+              <button id="paste-back-btn" class="btn btn-secondary" style="padding: 6px 14px; font-size: 12px;" disabled>
+                🚀 Replace Selection in App
+              </button>
             </div>
-            <div>
-              <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Auto-Paste (Windows)</div>
-              <div id="active-paste-display" style="font-size: 18px; font-weight: 500; margin-top: 4px;">Enabled</div>
-            </div>
+            <textarea id="transform-output" readonly placeholder="Transformed output will appear here..." style="width: 100%; height: 110px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-glow); border-radius: 8px; color: #10b981; padding: 10px; font-family: inherit; font-size: 13px; box-sizing: border-box; resize: vertical;"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: Meeting Mode -->
+      <div id="page-meeting" class="page-section">
+        <h2>Meeting Mode (Loopback + Mic)</h2>
+        <p style="color: var(--text-muted); font-size: 14px; margin-top: -12px; margin-bottom: 24px;">
+          Capture system audio (Zoom, Google Meet, Teams) alongside your microphone for comprehensive automated meeting minutes.
+        </p>
+
+        <div class="card" style="text-align: center; padding: 30px 20px;">
+          <div id="meeting-icon" style="font-size: 40px; margin-bottom: 12px;">🎙️</div>
+          <h3 id="meeting-status" style="margin-top: 0; font-size: 18px;">Meeting Notetaker Ready</h3>
+          <p id="meeting-desc" style="color: var(--text-muted); font-size: 13px; margin: 0 auto 20px; max-width: 440px;">
+            Click start to begin capturing discussion. When finished, our AI chief-of-staff will generate executive notes.
+          </p>
+          <div style="display: flex; justify-content: center; gap: 12px;">
+            <button id="meeting-record-btn" class="btn btn-primary" style="padding: 12px 24px;">Start Meeting Recording</button>
+            <button id="summarize-meeting-btn" class="btn btn-secondary" style="padding: 12px 24px;" disabled>Summarize Notes</button>
+          </div>
+        </div>
+
+        <div id="meeting-results-container" class="card" style="display: none; margin-top: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="margin: 0; font-size: 16px;">Meeting Minutes & Action Items</h3>
+            <button id="copy-meeting-notes-btn" class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px;">Copy Notes</button>
+          </div>
+          
+          <div style="margin-bottom: 14px;">
+            <div style="font-weight: 600; font-size: 13px; color: var(--color-primary); margin-bottom: 4px;">Executive Summary</div>
+            <div id="meeting-summary-text" style="font-size: 13px; color: var(--text-main); line-height: 1.5;"></div>
+          </div>
+
+          <div style="margin-bottom: 14px;">
+            <div style="font-weight: 600; font-size: 13px; color: #5e6ad2; margin-bottom: 4px;">Key Decisions Made</div>
+            <ul id="meeting-decisions-list" style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-main);"></ul>
+          </div>
+
+          <div style="margin-bottom: 14px;">
+            <div style="font-weight: 600; font-size: 13px; color: #10b981; margin-bottom: 4px;">Action Items (Owner + Task)</div>
+            <ul id="meeting-actions-list" style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-main);"></ul>
+          </div>
+
+          <div>
+            <div style="font-weight: 600; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Detailed Discussion Notes</div>
+            <div id="meeting-detailed-notes" style="font-size: 13px; color: var(--text-muted); line-height: 1.5; white-space: pre-wrap;"></div>
           </div>
         </div>
       </div>
@@ -80,78 +207,93 @@
       <!-- PAGE: History -->
       <div id="page-history" class="page-section">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-          <h2 style="margin: 0;">Dictation History</h2>
-          <button id="clear-history-btn" class="btn btn-danger" style="padding: 8px 16px;">Clear History</button>
+          <h2>Dictation History</h2>
+          <button id="clear-history-btn" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">Clear All</button>
         </div>
-        
-        <div id="history-container" class="history-list">
-          <!-- Dynamically filled -->
-          <div style="text-align: center; color: var(--text-muted); padding: 40px;">
-            No dictations captured yet. Press the hotkey to start speaking!
-          </div>
-        </div>
+        <div id="history-container" class="history-list"></div>
       </div>
 
       <!-- PAGE: Dictionary -->
       <div id="page-dictionary" class="page-section">
-        <h2>Personal Dictionary</h2>
-        <p style="color: var(--text-muted); font-size: 14px; margin-top: -16px; margin-bottom: 24px;">
-          Teach VoiceDraft names, acronyms, and product terms to boost recognition and enforce correct casing.
+        <h2>Custom Vocabulary & Jargon</h2>
+        <p style="color: var(--text-muted); font-size: 14px; margin-top: -12px; margin-bottom: 24px;">
+          Teach VoiceDraft industry acronyms, company names, or tricky phonetic pronunciations.
         </p>
 
-        <div class="card">
-          <h3 style="margin-top: 0; font-size: 16px; margin-bottom: 16px;">Add Custom Word</h3>
-          <form id="dict-form" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 16px; align-items: end;">
+        <div class="card" style="margin-bottom: 24px;">
+          <form id="dict-form" class="grid-3" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: flex-end;">
             <div class="form-group" style="margin: 0;">
-              <label for="dict-term">Word / Phrase</label>
-              <input type="text" id="dict-term" placeholder="e.g. Xolver" required>
+              <label for="dict-term">Word or Acronym</label>
+              <input type="text" id="dict-term" placeholder="e.g. Supabase, Anthropic" required>
             </div>
             <div class="form-group" style="margin: 0;">
               <label for="dict-sounds">Sounds Like (Optional)</label>
-              <input type="text" id="dict-sounds" placeholder="e.g. Zolver">
+              <input type="text" id="dict-sounds" placeholder="e.g. Super base">
             </div>
-            <button type="submit" class="btn btn-primary" style="height: 42px;">Add Word</button>
+            <button type="submit" class="btn btn-primary" style="height: 42px;">Add Term</button>
           </form>
         </div>
 
-        <div id="dict-container" class="dict-list">
-          <!-- Dynamically filled -->
-        </div>
+        <div id="dict-container" class="grid-2"></div>
       </div>
 
       <!-- PAGE: Settings -->
       <div id="page-settings" class="page-section">
-        <h2>Application Settings</h2>
-        
+        <h2>Preferences & Engine Settings</h2>
+
         <div class="card">
-          <h3 style="margin-top: 0; font-size: 16px; margin-bottom: 20px;">Writing Configuration</h3>
-          
+          <h3 style="margin-top: 0; font-size: 16px; margin-bottom: 20px;">Dictation Mode</h3>
           <div class="form-group">
-            <label for="settings-mode">Default Writing Mode</label>
+            <label for="settings-mode">Default Tone & Formatting Mode</label>
             <select id="settings-mode">
-              <option value="default">Default (Polished &amp; Grammatically Clean)</option>
-              <option value="email">Email (Professional Business Greetings &amp; Formatting)</option>
-              <option value="chat">Chat (Casual Message, No Salutations)</option>
-              <option value="notes">Notes (Structured Markdown Bullet Points &amp; Headers)</option>
-              <option value="developer">Developer (Backtick Variables &amp; Technical Identifiers)</option>
-              <option value="social">Social Media (Punchy &amp; Segmented Posts)</option>
+              <option value="default">Default (Natural & Clean)</option>
+              <option value="email">Professional Email</option>
+              <option value="chat">Casual Chat (Slack / Teams)</option>
+              <option value="notes">Structured Notes (Bullets & Headers)</option>
+              <option value="developer">Developer (Backticks for code & vars)</option>
+              <option value="social">Social Media (Punchy for LinkedIn / X)</option>
             </select>
           </div>
+        </div>
 
-          <div class="form-group" style="flex-direction: row; align-items: center; justify-content: space-between; margin-top: 10px;">
-            <div>
-              <label style="text-transform: none; font-size: 14px; color: var(--text-main);">Simulate Keyboard Paste</label>
-              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Automatically paste text at the cursor upon finishing dictation.</div>
+        <div class="card">
+          <h3 style="margin-top: 0; font-size: 16px; margin-bottom: 20px;">Hotkey & Push-to-Talk</h3>
+          <div class="form-group">
+            <label for="settings-hotkey-behavior">Hotkey Behavior</label>
+            <select id="settings-hotkey-behavior">
+              <option value="push_to_talk">Push-to-Talk (Hold hotkey to speak, release to paste)</option>
+              <option value="toggle">Toggle (Press once to start, press again to stop)</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+              Wispr Flow standard is Push-to-Talk for zero-latency instant injection upon release.
             </div>
-            <input type="checkbox" id="settings-autopaste" style="width: 20px; height: 20px; cursor: pointer;">
           </div>
 
-          <div class="form-group" style="flex-direction: row; align-items: center; justify-content: space-between; margin-top: 10px;">
+          <div class="form-group" style="margin-top: 14px;">
+            <label for="settings-hotkey">Global Hotkey</label>
+            <input type="text" id="settings-hotkey" value="Alt+Space" placeholder="e.g. Alt+Space, Ctrl+Shift+Space" required>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+              Low-level keyboard hook swallows the key so system menus (like Alt+Space window menu) do not appear.
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top: 0; font-size: 16px; margin-bottom: 20px;">Automation & Insertion</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+              <label style="text-transform: none; font-size: 14px; color: var(--text-main);">Instant Auto-Paste</label>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Automatically paste transcribed text into the active window at caret position via native Win32 SendInput.</div>
+            </div>
+            <input type="checkbox" id="settings-autopaste" checked style="width: 20px; height: 20px; cursor: pointer;">
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
               <label style="text-transform: none; font-size: 14px; color: var(--text-main);">Enable Local History</label>
-              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Temporarily save the last 50 dictations to a local dashboard log.</div>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Save recent dictations to a local dashboard log.</div>
             </div>
-            <input type="checkbox" id="settings-history" style="width: 20px; height: 20px; cursor: pointer;">
+            <input type="checkbox" id="settings-history" checked style="width: 20px; height: 20px; cursor: pointer;">
           </div>
         </div>
 
@@ -161,18 +303,7 @@
             <label for="settings-apikey">API Key</label>
             <input type="password" id="settings-apikey" placeholder="Enter your GEMINI_API_KEY">
             <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
-              Get an API key from the <a href="https://aistudio.google.com/" target="_blank" style="color: var(--color-primary); text-decoration: none;">Google AI Studio</a>. Leave empty if configured via backend environment variables.
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3 style="margin-top: 0; font-size: 16px; margin-bottom: 20px;">Keyboard Shortcut</h3>
-          <div class="form-group">
-            <label for="settings-hotkey">Global Toggle Hotkey</label>
-            <input type="text" id="settings-hotkey" value="Alt+Space" placeholder="e.g. Ctrl+Shift+Space" required>
-            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
-              Press the save button below to register. Avoid shortcuts used by other major applications.
+              Get an API key from <a href="https://aistudio.google.com/" target="_blank" style="color: var(--color-primary); text-decoration: none;">Google AI Studio</a>.
             </div>
           </div>
         </div>
@@ -186,6 +317,9 @@
     </div>
   </div>
 
+  <script src="formattingEngine.js"></script>
+  <script src="languageDetector.js"></script>
+  <script src="audioStreamManager.js"></script>
   <script src="index.js"></script>
 </body>
 </html>

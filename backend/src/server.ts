@@ -1,9 +1,12 @@
 import express, { Request, Response } from 'express';
+import http from 'http';
 import cors from 'cors';
 import multer from 'multer';
 import dotenv from 'dotenv';
 import { db } from './services/db';
-import { transcribeAndCleanup, rewriteText } from './services/gemini';
+import { transcribeAndCleanup, rewriteText, applyTransform, summarizeMeeting } from './services/gemini';
+import { parseBacktracking } from './services/formattingEngine';
+import { setupStreamingWebSocket } from './services/streamingServer';
 
 dotenv.config();
 
@@ -119,12 +122,13 @@ app.post(
         dbApiKey
       );
 
+      const cleanedText = parseBacktracking(result.text);
       const durationMs = Date.now() - start;
-      const wordCount = result.text ? result.text.split(/\s+/).length : 0;
+      const wordCount = cleanedText ? cleanedText.split(/\s+/).length : 0;
 
       // Save to local history if enabled
       const savedRecord = db.addHistoryRecord({
-        text: result.text,
+        text: cleanedText,
         rawTranscript: result.rawTranscript,
         wordCount,
         mode,
@@ -133,7 +137,7 @@ app.post(
 
       res.json({
         id: savedRecord?.id || 'transient',
-        text: result.text,
+        text: cleanedText,
         rawTranscript: result.rawTranscript,
         wordCount,
         durationMs,
@@ -175,8 +179,60 @@ app.post('/api/rewrite', checkApiKey, async (req: Request, res: Response) => {
   }
 });
 
-// Start Server
-app.listen(PORT, () => {
+// AI Transforms Engine: Polish, PromptEngineer, TurnToList, MakeMeSoundSmart, WhatDidIMiss, Translate
+app.post('/api/transforms/apply', checkApiKey, async (req: Request, res: Response) => {
+  try {
+    const { text, transformType, customPrompt } = req.body;
+    if (!text || typeof text !== 'string') {
+      return res.status(400).json({ error: 'Text content to transform is required.' });
+    }
+
+    const dbApiKey = db.getSettings().geminiApiKey;
+    const transformed = await applyTransform(
+      text,
+      transformType || 'polish',
+      customPrompt,
+      dbApiKey
+    );
+
+    res.json({
+      text: transformed,
+      transformType,
+      wordCount: transformed.split(/\s+/).length
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      error: 'TRANSFORM_ERROR',
+      message: error.message || 'Failed to apply transform'
+    });
+  }
+});
+
+// Meeting Mode Summarizer
+app.post('/api/meetings/summarize', checkApiKey, async (req: Request, res: Response) => {
+  try {
+    const { transcript } = req.body;
+    if (!transcript || typeof transcript !== 'string') {
+      return res.status(400).json({ error: 'Meeting transcript is required.' });
+    }
+
+    const dbApiKey = db.getSettings().geminiApiKey;
+    const summaryData = await summarizeMeeting(transcript, dbApiKey);
+
+    res.json(summaryData);
+  } catch (error: any) {
+    res.status(500).json({
+      error: 'MEETING_SUMMARY_ERROR',
+      message: error.message || 'Failed to summarize meeting'
+    });
+  }
+});
+
+// Start Server & WebSocket Streaming
+const server = http.createServer(app);
+setupStreamingWebSocket(server);
+
+server.listen(PORT, () => {
   console.log(`[VoiceDraft Backend] Running on http://localhost:${PORT}`);
   console.log(`[VoiceDraft Backend] API Key loaded: ${process.env.GEMINI_API_KEY || db.getSettings().geminiApiKey ? 'YES' : 'NO'}`);
 });
