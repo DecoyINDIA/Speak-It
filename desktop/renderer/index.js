@@ -1,4 +1,13 @@
-let API_BASE = 'http://localhost:3000/api';
+let API_BASE = 'http://127.0.0.1:3000/api';
+let API_TOKEN = '';
+
+async function authFetch(input, init = {}) {
+  const headers = new Headers(init.headers || {});
+  if (API_TOKEN) {
+    headers.set('X-SpeakIt-Token', API_TOKEN);
+  }
+  return fetch(input, { ...init, headers });
+}
 
 // State variables
 let isRecording = false;
@@ -114,7 +123,7 @@ function switchPage(pageId) {
 // Check Backend Health & API Key Status
 async function checkBackendHealth() {
   try {
-    const res = await fetch(`${API_BASE}/health`);
+    const res = await authFetch(`${API_BASE}/health`);
     const data = await res.json();
     if (!data.apiKeyConfigured) {
       apiKeyAlert.classList.add('active');
@@ -124,17 +133,14 @@ async function checkBackendHealth() {
   } catch (error) {
     console.error('Failed to connect to backend service:', error);
     apiKeyAlert.classList.add('active');
-    apiKeyAlert.querySelector('div').innerHTML = `
-      <strong>Backend Service Offline</strong><br>
-      Could not connect to the local server. Ensure backend is running on <code>http://localhost:3000</code>.
-    `;
+    apiKeyAlert.querySelector('div').textContent = 'Backend Service Offline: Could not connect to the local server.';
   }
 }
 
 // Load settings
 async function loadSettings() {
   try {
-    const res = await fetch(`${API_BASE}/settings`);
+    const res = await authFetch(`${API_BASE}/settings`);
     const settings = await res.json();
     userSettings = Object.assign(userSettings, settings);
 
@@ -143,7 +149,10 @@ async function loadSettings() {
     if (settingsAutopaste) settingsAutopaste.checked = userSettings.autoPaste !== false;
     if (settingsHistory) settingsHistory.checked = userSettings.historyEnabled !== false;
     if (settingsHotkey) settingsHotkey.value = userSettings.hotkey || 'Alt+Space';
-    if (settingsApikey) settingsApikey.value = userSettings.geminiApiKey || '';
+    if (settingsApikey) {
+      settingsApikey.value = '';
+      settingsApikey.placeholder = userSettings.geminiApiKeySet ? 'API Key is saved (leave empty to keep unchanged)' : 'Enter your GEMINI_API_KEY';
+    }
 
     if (shortcutDisplay) shortcutDisplay.innerText = userSettings.hotkey;
     if (activeModeDisplay) activeModeDisplay.innerText = userSettings.defaultMode;
@@ -161,12 +170,14 @@ if (saveSettingsBtn) {
       hotkeyBehavior: settingsHotkeyBehavior ? settingsHotkeyBehavior.value : 'push_to_talk',
       autoPaste: settingsAutopaste.checked,
       historyEnabled: settingsHistory.checked,
-      hotkey: settingsHotkey.value.trim(),
-      geminiApiKey: settingsApikey.value.trim()
+      hotkey: settingsHotkey.value.trim()
     };
+    if (settingsApikey.value.trim()) {
+      updatedSettings.geminiApiKey = settingsApikey.value.trim();
+    }
 
     try {
-      const res = await fetch(`${API_BASE}/settings`, {
+      const res = await authFetch(`${API_BASE}/settings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedSettings)
@@ -202,7 +213,7 @@ if (resetSettingsBtn) {
         geminiApiKey: ''
       };
       try {
-        await fetch(`${API_BASE}/settings`, {
+        await authFetch(`${API_BASE}/settings`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(defaults)
@@ -259,7 +270,7 @@ if (runTransformBtn) {
     transformStatus.innerText = 'Applying Gemini transform...';
 
     try {
-      const res = await fetch(`${API_BASE}/transforms/apply`, {
+      const res = await authFetch(`${API_BASE}/transforms/apply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -319,7 +330,7 @@ if (meetingRecordBtn) {
       meetingDesc.innerText = 'Processing full meeting audio stream...';
 
       try {
-        const result = await meetingStreamManager.stopStream(API_BASE, { mode: 'notes' });
+        const result = await meetingStreamManager.stopStream(API_BASE, { mode: 'notes', token: API_TOKEN });
         if (result && result.text) {
           meetingTranscriptAccumulator = result.text;
           meetingDesc.innerText = `Captured ${result.wordCount || result.text.split(/\s+/).length} words. Click 'Summarize Notes' to generate executive minutes.`;
@@ -335,7 +346,7 @@ if (meetingRecordBtn) {
       // Start meeting recording
       try {
         meetingStreamManager = new AudioStreamManager();
-        await meetingStreamManager.startStream(API_BASE, { mode: 'notes' });
+        await meetingStreamManager.startStream(API_BASE, { mode: 'notes', token: API_TOKEN });
         isMeetingRecording = true;
         meetingRecordBtn.innerText = 'Stop Meeting Recording';
         meetingRecordBtn.classList.remove('btn-primary');
@@ -358,7 +369,7 @@ if (summarizeMeetingBtn) {
     summarizeMeetingBtn.innerText = 'Summarizing...';
 
     try {
-      const res = await fetch(`${API_BASE}/meetings/summarize`, {
+      const res = await authFetch(`${API_BASE}/meetings/summarize`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ transcript: meetingTranscriptAccumulator })
@@ -414,32 +425,57 @@ if (copyMeetingNotesBtn) {
 // Dictionary Management
 async function loadDictionary() {
   try {
-    const res = await fetch(`${API_BASE}/dictionary`);
+    const res = await authFetch(`${API_BASE}/dictionary`);
     const list = await res.json();
     dictContainer.innerHTML = '';
 
     if (list.length === 0) {
-      dictContainer.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 20px;">
-          Your dictionary is empty. Add industry jargon, brands, or names.
-        </div>
-      `;
+      const emptyMsg = document.createElement('div');
+      emptyMsg.style.cssText = 'grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 20px;';
+      emptyMsg.textContent = 'Your dictionary is empty. Add industry jargon, brands, or names.';
+      dictContainer.appendChild(emptyMsg);
       return;
     }
 
     list.forEach(item => {
       const card = document.createElement('div');
       card.className = 'dict-card';
-      card.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-          <div class="dict-word">${item.term}</div>
-          <button class="btn btn-danger delete-dict-btn" data-id="${item.id}" style="padding: 4px 8px; font-size: 11px;">Delete</button>
-        </div>
-        <div class="dict-meta">
-          ${item.soundsLike ? `<div>Sounds like: <em>${item.soundsLike}</em></div>` : ''}
-          <div style="font-size: 10px; color: var(--text-muted);">Added: ${new Date(item.createdAt).toLocaleDateString()}</div>
-        </div>
-      `;
+
+      const topRow = document.createElement('div');
+      topRow.style.cssText = 'display:flex; justify-content:space-between; align-items:flex-start;';
+
+      const wordDiv = document.createElement('div');
+      wordDiv.className = 'dict-word';
+      wordDiv.textContent = item.term;
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'btn btn-danger delete-dict-btn';
+      delBtn.setAttribute('data-id', item.id);
+      delBtn.style.cssText = 'padding: 4px 8px; font-size: 11px;';
+      delBtn.textContent = 'Delete';
+
+      topRow.appendChild(wordDiv);
+      topRow.appendChild(delBtn);
+
+      const metaDiv = document.createElement('div');
+      metaDiv.className = 'dict-meta';
+
+      if (item.soundsLike) {
+        const soundsDiv = document.createElement('div');
+        soundsDiv.appendChild(document.createTextNode('Sounds like: '));
+        const em = document.createElement('em');
+        em.textContent = item.soundsLike;
+        soundsDiv.appendChild(em);
+        metaDiv.appendChild(soundsDiv);
+      }
+
+      const dateDiv = document.createElement('div');
+      dateDiv.style.cssText = 'font-size: 10px; color: var(--text-muted);';
+      dateDiv.textContent = `Added: ${new Date(item.createdAt).toLocaleDateString()}`;
+      metaDiv.appendChild(dateDiv);
+
+      card.appendChild(topRow);
+      card.appendChild(metaDiv);
       dictContainer.appendChild(card);
     });
 
@@ -448,7 +484,7 @@ async function loadDictionary() {
         const id = e.target.getAttribute('data-id');
         if (confirm('Remove this word?')) {
           try {
-            await fetch(`${API_BASE}/dictionary/${id}`, { method: 'DELETE' });
+            await authFetch(`${API_BASE}/dictionary/${id}`, { method: 'DELETE' });
             loadDictionary();
           } catch (err) {
             console.error(err);
@@ -469,7 +505,7 @@ if (dictForm) {
     if (!term) return;
 
     try {
-      const res = await fetch(`${API_BASE}/dictionary`, {
+      const res = await authFetch(`${API_BASE}/dictionary`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ term, soundsLike })
@@ -488,36 +524,71 @@ if (dictForm) {
 // History Management
 async function loadHistory() {
   try {
-    const res = await fetch(`${API_BASE}/history`);
+    const res = await authFetch(`${API_BASE}/history`);
     const history = await res.json();
     historyContainer.innerHTML = '';
 
     if (history.length === 0) {
-      historyContainer.innerHTML = `
-        <div style="text-align: center; color: var(--text-muted); padding: 40px;">
-          No dictations captured yet. Press the hotkey to start speaking!
-        </div>
-      `;
+      const emptyDiv = document.createElement('div');
+      emptyDiv.style.cssText = 'text-align: center; color: var(--text-muted); padding: 40px;';
+      emptyDiv.textContent = 'No dictations captured yet. Press the hotkey to start speaking!';
+      historyContainer.appendChild(emptyDiv);
       return;
     }
 
     history.forEach(item => {
       const card = document.createElement('div');
       card.className = 'history-card';
-      card.innerHTML = `
-        <div class="history-header">
-          <span class="history-mode-badge">${item.mode}</span>
-          <span class="history-time">${new Date(item.timestamp).toLocaleString()}</span>
-        </div>
-        <div style="font-weight: 500; font-size: 13px; color: var(--text-muted);">Cleaned Output:</div>
-        <div class="history-text">${item.text}</div>
-        <div style="font-weight: 500; font-size: 13px; color: var(--text-muted); margin-top: 4px;">Raw Transcript:</div>
-        <div class="history-raw">${item.rawTranscript}</div>
-        <div style="font-size: 11px; color: var(--text-muted); display: flex; gap: 15px;">
-          <span>Words: ${item.wordCount}</span>
-          <span>Latency: ${(item.durationMs / 1000).toFixed(1)}s</span>
-        </div>
-      `;
+
+      const header = document.createElement('div');
+      header.className = 'history-header';
+
+      const badge = document.createElement('span');
+      badge.className = 'history-mode-badge';
+      badge.textContent = item.mode || 'default';
+
+      const timeSpan = document.createElement('span');
+      timeSpan.className = 'history-time';
+      timeSpan.textContent = new Date(item.timestamp).toLocaleString();
+
+      header.appendChild(badge);
+      header.appendChild(timeSpan);
+
+      const cleanedLabel = document.createElement('div');
+      cleanedLabel.style.cssText = 'font-weight: 500; font-size: 13px; color: var(--text-muted);';
+      cleanedLabel.textContent = 'Cleaned Output:';
+
+      const cleanedText = document.createElement('div');
+      cleanedText.className = 'history-text';
+      cleanedText.textContent = item.text || '';
+
+      const rawLabel = document.createElement('div');
+      rawLabel.style.cssText = 'font-weight: 500; font-size: 13px; color: var(--text-muted); margin-top: 4px;';
+      rawLabel.textContent = 'Raw Transcript:';
+
+      const rawText = document.createElement('div');
+      rawText.className = 'history-raw';
+      rawText.textContent = item.rawTranscript || '';
+
+      const footer = document.createElement('div');
+      footer.style.cssText = 'font-size: 11px; color: var(--text-muted); display: flex; gap: 15px;';
+
+      const wordsSpan = document.createElement('span');
+      wordsSpan.textContent = `Words: ${item.wordCount || 0}`;
+
+      const latencySpan = document.createElement('span');
+      latencySpan.textContent = `Latency: ${((item.durationMs || 0) / 1000).toFixed(1)}s`;
+
+      footer.appendChild(wordsSpan);
+      footer.appendChild(latencySpan);
+
+      card.appendChild(header);
+      card.appendChild(cleanedLabel);
+      card.appendChild(cleanedText);
+      card.appendChild(rawLabel);
+      card.appendChild(rawText);
+      card.appendChild(footer);
+
       historyContainer.appendChild(card);
     });
   } catch (error) {
@@ -529,7 +600,7 @@ if (clearHistoryBtn) {
   clearHistoryBtn.addEventListener('click', async () => {
     if (confirm('Clear all local dictation logs?')) {
       try {
-        await fetch(`${API_BASE}/history`, { method: 'DELETE' });
+        await authFetch(`${API_BASE}/history`, { method: 'DELETE' });
         loadHistory();
       } catch (e) {
         console.error(e);
@@ -559,7 +630,8 @@ async function startRecording() {
 
     await audioStreamManager.startStream(API_BASE, {
       mode: userSettings.defaultMode,
-      language: 'auto'
+      language: 'auto',
+      token: API_TOKEN
     });
   } catch (error) {
     console.error('Error starting audio stream:', error);
@@ -581,7 +653,8 @@ async function stopRecording() {
 
   try {
     const result = await audioStreamManager.stopStream(API_BASE, {
-      mode: userSettings.defaultMode
+      mode: userSettings.defaultMode,
+      token: API_TOKEN
     });
 
     if (result && result.text && result.text.trim()) {
@@ -680,7 +753,12 @@ window.api.onNotification((data) => {
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     const dynamicApiBase = await window.api.getApiUrl();
-    API_BASE = dynamicApiBase;
+    if (typeof dynamicApiBase === 'object' && dynamicApiBase !== null) {
+      API_BASE = dynamicApiBase.url;
+      API_TOKEN = dynamicApiBase.token || '';
+    } else {
+      API_BASE = dynamicApiBase;
+    }
     console.log(`[VoiceDraft Frontend] Connected to dynamic API Base: ${API_BASE}`);
   } catch (error) {
     console.error('Failed to get dynamic API URL from Electron main process:', error);

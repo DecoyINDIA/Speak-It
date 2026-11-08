@@ -1,21 +1,34 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import http from 'http';
 import cors from 'cors';
 import multer from 'multer';
 import dotenv from 'dotenv';
 import { db } from './services/db';
 import { transcribeAndCleanup, rewriteText, applyTransform, summarizeMeeting } from './services/gemini';
-import { parseBacktracking } from './services/formattingEngine';
 import { setupStreamingWebSocket } from './services/streamingServer';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const AUTH_TOKEN = process.env.SPEAKIT_API_TOKEN || '';
 
 // Configure CORS to allow our Electron app to connect
 app.use(cors());
 app.use(express.json());
+
+// Token Authentication Middleware
+app.use((req: Request, res: Response, next: NextFunction) => {
+  // If a token is configured, enforce X-SpeakIt-Token or ?token=
+  if (AUTH_TOKEN) {
+    const headerToken = req.headers['x-speakit-token'];
+    const queryToken = req.query.token;
+    if (headerToken !== AUTH_TOKEN && queryToken !== AUTH_TOKEN) {
+      return res.status(401).json({ error: 'UNAUTHORIZED', message: 'Missing or invalid authentication token.' });
+    }
+  }
+  next();
+});
 
 // Set up Multer for handling file uploads (in-memory storage)
 const upload = multer({
@@ -26,7 +39,7 @@ const upload = multer({
 });
 
 // Middleware to check if Gemini API key is configured
-const checkApiKey = (req: Request, res: Response, next: Function) => {
+const checkApiKey = (req: Request, res: Response, next: NextFunction) => {
   const dbApiKey = db.getSettings().geminiApiKey;
   if (!process.env.GEMINI_API_KEY && !dbApiKey) {
     return res.status(500).json({
@@ -50,12 +63,30 @@ app.get('/api/health', (req: Request, res: Response) => {
 
 // Settings Endpoints
 app.get('/api/settings', (req: Request, res: Response) => {
-  res.json(db.getSettings());
+  const settings = db.getSettings();
+  const dbApiKey = settings.geminiApiKey;
+  const isSet = !!process.env.GEMINI_API_KEY || (typeof dbApiKey === 'string' && dbApiKey.trim().length > 0);
+  const safeSettings = {
+    ...settings,
+    geminiApiKeySet: isSet
+  };
+  delete (safeSettings as any).geminiApiKey;
+  res.json(safeSettings);
 });
 
 app.post('/api/settings', (req: Request, res: Response) => {
-  const updated = db.updateSettings(req.body);
-  res.json(updated);
+  const payload = { ...req.body };
+  if (payload.geminiApiKey !== undefined && payload.geminiApiKey.trim() === '') {
+    delete payload.geminiApiKey;
+  }
+  const updated = db.updateSettings(payload);
+  const isSet = !!process.env.GEMINI_API_KEY || (typeof updated.geminiApiKey === 'string' && updated.geminiApiKey.trim().length > 0);
+  const safeUpdated = {
+    ...updated,
+    geminiApiKeySet: isSet
+  };
+  delete (safeUpdated as any).geminiApiKey;
+  res.json(safeUpdated);
 });
 
 // Dictionary Endpoints
@@ -122,7 +153,7 @@ app.post(
         dbApiKey
       );
 
-      const cleanedText = parseBacktracking(result.text);
+      const cleanedText = result.text;
       const durationMs = Date.now() - start;
       const wordCount = cleanedText ? cleanedText.split(/\s+/).length : 0;
 
@@ -232,7 +263,8 @@ app.post('/api/meetings/summarize', checkApiKey, async (req: Request, res: Respo
 const server = http.createServer(app);
 setupStreamingWebSocket(server);
 
-server.listen(PORT, () => {
-  console.log(`[VoiceDraft Backend] Running on http://localhost:${PORT}`);
+const serverInstance = server.listen(Number(PORT), '127.0.0.1', () => {
+  console.log(`[VoiceDraft Backend] Running on http://127.0.0.1:${PORT}`);
   console.log(`[VoiceDraft Backend] API Key loaded: ${process.env.GEMINI_API_KEY || db.getSettings().geminiApiKey ? 'YES' : 'NO'}`);
+  console.log(`[VoiceDraft Backend] Auth Token: ${AUTH_TOKEN ? 'ENABLED' : 'DISABLED'}`);
 });

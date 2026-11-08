@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, globalShortcut, Tray, Menu, clipboard, scre
 const path = require('path');
 const { exec } = require('child_process');
 const net = require('net');
+const crypto = require('crypto');
 const nativeHelperManager = require('./nativeHelperManager');
 
 let mainWindow = null;
@@ -11,6 +12,7 @@ let isRecording = false;
 let currentHotkey = 'Alt+Space';
 let hotkeyMode = 'push_to_talk'; // 'push_to_talk' or 'toggle'
 let apiPort = 3000;
+let apiToken = crypto.randomBytes(24).toString('hex');
 
 function getFreePort(startingPort = 3000) {
   return new Promise((resolve) => {
@@ -302,7 +304,10 @@ function setupNativeHelper() {
 
 // IPC Handlers
 ipcMain.handle('get-platform', () => process.platform);
-ipcMain.handle('get-api-url', () => `http://localhost:${apiPort}/api`);
+ipcMain.handle('get-api-url', () => ({
+  url: `http://127.0.0.1:${apiPort}/api`,
+  token: apiToken
+}));
 
 ipcMain.handle('get-context', async () => {
   if (nativeHelperManager.isReady) {
@@ -410,6 +415,7 @@ ipcMain.on('audio-level', (event, level) => {
 app.whenReady().then(async () => {
   apiPort = await getFreePort(3000);
   process.env.PORT = String(apiPort);
+  process.env.SPEAKIT_API_TOKEN = apiToken;
 
   // Start local backend server
   const backendPath = app.isPackaged 

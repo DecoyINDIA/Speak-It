@@ -42,7 +42,10 @@ class AudioStreamManager {
     this.workletNode = new AudioWorkletNode(this.audioContext, 'recorder-worklet');
 
     // 4. Connect WebSocket if possible
-    const wsUrl = apiBaseUrl.replace(/^http/, 'ws') + '/stream';
+    let wsUrl = apiBaseUrl.replace(/^http/, 'ws') + '/stream';
+    if (options.token) {
+      wsUrl += (wsUrl.includes('?') ? '&' : '?') + 'token=' + encodeURIComponent(options.token);
+    }
     let socketReady = false;
 
     try {
@@ -157,8 +160,14 @@ class AudioStreamManager {
     formData.append('audio', wavBlob, 'recording.wav');
     formData.append('mode', options.mode || 'default');
 
+    const headers = {};
+    if (options.token) {
+      headers['X-SpeakIt-Token'] = options.token;
+    }
+
     const res = await fetch(`${apiBaseUrl}/dictations/process`, {
       method: 'POST',
+      headers,
       body: formData
     });
 

@@ -97,7 +97,11 @@ class LocalDatabase {
   }
 
   updateSettings(settings: Partial<UserSettings>): UserSettings {
-    this.data.settings = { ...this.data.settings, ...settings };
+    const nextSettings = { ...settings };
+    if (nextSettings.geminiApiKey !== undefined && nextSettings.geminiApiKey.trim() === '') {
+      delete nextSettings.geminiApiKey;
+    }
+    this.data.settings = { ...this.data.settings, ...nextSettings };
     this.save();
     return this.data.settings;
   }

@@ -1,4 +1,8 @@
-# SpeakIt (VoiceDraft) — Implementation Handoff Document
+# SpeakIt (VoiceDraft) — Implementation Handoff Document (SUPERSEDED)
+
+> [!WARNING]
+> **SUPERSEDED ON 2026-11-08 by `PLAN.md`.**
+> Many claims of completion in this document are inaccurate or describe prototype code with known ship-blocking defects (e.g. API key leak, word-deleting regex backtracking, push-to-talk freeze, audio clipping, unverified spike gates). Refer exclusively to `PLAN.md` for current specifications, architecture, and milestones.
 
 ## Project Vision & Reference
 Reverse engineering Wispr Flow v1.6.1400 desktop architecture into SpeakIt:

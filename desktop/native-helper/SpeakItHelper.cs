@@ -410,7 +410,12 @@ namespace SpeakIt.NativeHelper
             bool success = false;
             string usedMethod = "clipboard";
 
-            if (mode == "unicode")
+            if (mode == "dry_run")
+            {
+                usedMethod = "dry_run";
+                success = true;
+            }
+            else if (mode == "unicode")
             {
                 SendUnicodeChars(text);
                 usedMethod = "unicode_keys";

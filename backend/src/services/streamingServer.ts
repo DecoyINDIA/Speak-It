@@ -1,11 +1,32 @@
 import http from 'http';
+import url from 'url';
 const WebSocket = require('ws');
 import { db } from './db';
 import { transcribeAndCleanup } from './gemini';
-import { parseBacktracking } from './formattingEngine';
 
 export function setupStreamingWebSocket(server: http.Server) {
-  const wss = new WebSocket.Server({ server, path: '/api/stream' });
+  const wss = new WebSocket.Server({ noServer: true });
+  const AUTH_TOKEN = process.env.SPEAKIT_API_TOKEN || '';
+
+  server.on('upgrade', (request, socket, head) => {
+    const parsedUrl = url.parse(request.url || '', true);
+    if (parsedUrl.pathname === '/api/stream') {
+      if (AUTH_TOKEN) {
+        const token = parsedUrl.query.token;
+        if (token !== AUTH_TOKEN) {
+          socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+          socket.destroy();
+          return;
+        }
+      }
+
+      wss.handleUpgrade(request, socket, head, (ws: any) => {
+        wss.emit('connection', ws, request);
+      });
+    } else {
+      socket.destroy();
+    }
+  });
 
   wss.on('connection', (ws: any) => {
     let audioChunks: Buffer[] = [];
@@ -53,7 +74,7 @@ export function setupStreamingWebSocket(server: http.Server) {
             dbApiKey
           );
 
-          const cleanedText = parseBacktracking(result.text);
+          const cleanedText = result.text;
           const durationMs = Date.now() - startTime;
           const wordCount = cleanedText ? cleanedText.split(/\s+/).length : 0;
 

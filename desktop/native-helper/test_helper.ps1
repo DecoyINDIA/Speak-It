@@ -33,8 +33,8 @@ $proc.StandardInput.Flush()
 $hk = $proc.StandardOutput.ReadLine()
 Write-Host "[4] Hotkey response: $hk"
 
-# 5. Test paste (clipboard swap test)
-$proc.StandardInput.WriteLine('{"id":"paste-1","cmd":"paste","text":"SpeakIt test text","mode":"auto"}')
+# 5. Test paste (clipboard swap test - dry_run to avoid pasting into active window)
+$proc.StandardInput.WriteLine('{"id":"paste-1","cmd":"paste","text":"SpeakIt test text","mode":"dry_run"}')
 $proc.StandardInput.Flush()
 $pasteResp = $proc.StandardOutput.ReadLine()
 Write-Host "[5] Paste response: $pasteResp"
