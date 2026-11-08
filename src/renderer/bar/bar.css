@@ -1,0 +1,161 @@
+/* The bar floats over any app, so it is always charcoal regardless of hub theme. */
+
+html,
+body {
+  background: transparent !important;
+  color-scheme: dark;
+}
+
+.bar-host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-ui);
+}
+
+.pill {
+  --pill-bg: oklch(0.17 0.005 135);
+  --pill-ink: oklch(0.96 0.004 135);
+  --pill-muted: oklch(0.7 0.008 135);
+  --volt: oklch(0.9 0.2 128);
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 308px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--pill-bg);
+  border: 1px solid oklch(0.3 0.008 135);
+  box-shadow: 0 6px 20px oklch(0 0 0 / 0.4);
+  color: var(--pill-ink);
+  font-size: 13px;
+  font-weight: 600;
+  animation: pill-in 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.pill[data-status='locked'],
+.pill[data-status='error'] {
+  padding-right: 5px;
+}
+
+@keyframes pill-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.pill__text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.pill__text--muted,
+.pill__muted {
+  color: var(--pill-muted);
+  flex-shrink: 0;
+}
+.pill__accent {
+  color: var(--volt);
+  flex-shrink: 0;
+}
+.pill__warn {
+  color: oklch(0.82 0.15 80);
+  flex-shrink: 0;
+}
+.pill__err {
+  color: oklch(0.72 0.18 25);
+  flex-shrink: 0;
+}
+.pill__spin {
+  color: var(--volt);
+  flex-shrink: 0;
+  animation: spin 0.8s linear infinite;
+}
+.pill__ok {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--volt);
+  color: oklch(0.2 0.05 130);
+  flex-shrink: 0;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--volt);
+  flex-shrink: 0;
+  animation: live 1.4s ease-in-out infinite;
+}
+@keyframes live {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--volt) 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 5px color-mix(in oklch, var(--volt) 0%, transparent);
+  }
+}
+
+.meter {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.meter span {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--volt);
+  transition: height 50ms linear;
+}
+
+.pill__actions {
+  display: flex;
+  gap: 4px;
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 30px;
+  min-width: 30px;
+  border-radius: 999px;
+  border: none;
+  background: oklch(0.26 0.007 135);
+  color: var(--pill-ink);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 140ms ease-out;
+}
+.pill-btn:hover {
+  background: oklch(0.32 0.008 135);
+}
+.pill-btn:focus-visible {
+  outline: 2px solid var(--volt);
+  outline-offset: 1px;
+}
+.pill-btn--label {
+  padding: 0 10px;
+}
+.pill-btn--stop {
+  background: var(--volt);
+  color: oklch(0.2 0.05 130);
+}
+.pill-btn--stop:hover {
+  background: oklch(0.94 0.19 128);
+}

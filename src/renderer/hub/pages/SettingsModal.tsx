@@ -1,7 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+  Building2,
+  Check,
+  CircleCheck,
+  Cpu,
+  FolderOpen,
+  Info,
+  Monitor,
+  RefreshCw,
+  ShieldCheck,
+  SlidersHorizontal,
+  TriangleAlert,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
 import { productConfig } from '../../../../product.config';
+import { Dialog, ICON, ICON_SM, Kbd, Switch } from '../components/ui';
 
 type SettingsSection = 'general' | 'system' | 'providers' | 'privacy' | 'about';
+
+const SECTIONS: { id: SettingsSection; label: string; icon: LucideIcon }[] = [
+  { id: 'general', label: 'General', icon: SlidersHorizontal },
+  { id: 'system', label: 'System', icon: Monitor },
+  { id: 'providers', label: 'Speech engines', icon: Cpu },
+  { id: 'privacy', label: 'Data & privacy', icon: ShieldCheck },
+  { id: 'about', label: 'About', icon: Info },
+];
+
+const KEY_LABELS: Record<string, string> = { Control: 'Ctrl', Meta: 'Win' };
 
 export const SettingsModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
   const [section, setSection] = useState<SettingsSection>('general');
@@ -11,435 +37,416 @@ export const SettingsModal: React.FC<{ isOpen: boolean; onClose: () => void }> =
   const [geminiKeyInput, setGeminiKeyInput] = useState('');
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [updateCheckMsg, setUpdateCheckMsg] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [managedPolicy, setManagedPolicy] = useState<{ isManaged?: boolean; offlineOnly?: boolean; disableHistory?: boolean } | null>(null);
 
   useEffect(() => {
-    if (isOpen) {
-      loadSettings();
-    }
+    if (isOpen) loadSettings();
   }, [isOpen]);
 
   async function loadSettings() {
-    if ((window as any).speakit) {
-      const s = await (window as any).speakit.getSettings();
-      if (s) setSettings(s);
-      const sec = await (window as any).speakit.getSecretsStatus();
-      if (sec) setSecretsStatus(sec);
-    }
+    const api = (window as any).speakit;
+    if (!api) return;
+    const s = await api.getSettings();
+    if (s) setSettings(s);
+    const sec = await api.getSecretsStatus();
+    if (sec) setSecretsStatus(sec);
+    const policy = await api.getManagedPolicy?.();
+    if (policy) setManagedPolicy(policy);
   }
 
-  async function updateSetting(pathKey: string, val: any) {
-    if (!settings || !(window as any).speakit) return;
-    const [cat, key] = pathKey.split('.');
-    const partial = { [cat]: { ...settings[cat], [key]: val } };
-    const updated = await (window as any).speakit.updateSettings(partial);
-    setSettings(updated);
-    setSaveStatus('Saved');
-    setTimeout(() => setSaveStatus(null), 1200);
-  }
-
-  async function saveKey(provider: string, keyVal: string) {
-    if (!keyVal.trim() || !(window as any).speakit) return;
-    await (window as any).speakit.setSecret(provider, keyVal.trim());
-    if (provider === 'groq') setGroqKeyInput('');
-    if (provider === 'gemini') setGeminiKeyInput('');
-    loadSettings();
-    setSaveStatus('Key saved securely in Windows DPAPI');
+  function flash(msg: string) {
+    setSaveStatus(msg);
     setTimeout(() => setSaveStatus(null), 1500);
   }
 
-  async function removeKey(provider: string) {
-    if (!(window as any).speakit) return;
-    await (window as any).speakit.deleteSecret(provider);
+  async function updateSetting(pathKey: string, val: any) {
+    const api = (window as any).speakit;
+    if (!settings || !api) return;
+    const [cat, key] = pathKey.split('.');
+    const partial = { [cat]: { ...settings[cat], [key]: val } };
+    const updated = await api.updateSettings(partial);
+    setSettings(updated);
+    flash('Saved');
+  }
+
+  async function saveKey(provider: string, keyVal: string) {
+    const api = (window as any).speakit;
+    if (!keyVal.trim() || !api) return;
+    await api.setSecret(provider, keyVal.trim());
+    if (provider === 'groq') setGroqKeyInput('');
+    if (provider === 'gemini') setGeminiKeyInput('');
     loadSettings();
+    flash('Key saved and encrypted');
+  }
+
+  async function removeKey(provider: string) {
+    await (window as any).speakit?.deleteSecret(provider);
+    loadSettings();
+  }
+
+  async function checkUpdates() {
+    const api = (window as any).speakit;
+    if (!api?.checkForUpdates) return;
+    setChecking(true);
+    setUpdateCheckMsg(null);
+    try {
+      const res = await api.checkForUpdates();
+      if (res.status === 'available') setUpdateCheckMsg(`Version ${res.version} is available.`);
+      else if (res.status === 'latest') setUpdateCheckMsg('You are on the latest version.');
+      else if (res.status === 'dev') setUpdateCheckMsg('Development build, updates are off.');
+      else setUpdateCheckMsg(`Could not check for updates: ${res.version}`);
+    } finally {
+      setChecking(false);
+    }
   }
 
   if (!isOpen || !settings) return null;
 
+  const offlineOnly = !!managedPolicy?.offlineOnly;
+
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.45)',
-        backdropFilter: 'blur(4px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-      }}
-    >
-      <div
-        style={{
-          width: '740px',
-          height: '520px',
-          backgroundColor: 'var(--panel)',
-          borderRadius: 'var(--r-l)',
-          border: '1px solid var(--line)',
-          boxShadow: '0 16px 48px rgba(0, 0, 0, 0.2)',
-          display: 'flex',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Left Settings Navigation */}
-        <div
-          style={{
-            width: '180px',
-            borderRight: '1px solid var(--line)',
-            background: 'var(--sand)',
-            padding: '20px 12px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <NavBtn label="General" active={section === 'general'} onClick={() => setSection('general')} />
-            <NavBtn label="System" active={section === 'system'} onClick={() => setSection('system')} />
-            <NavBtn label="AI Providers" active={section === 'providers'} onClick={() => setSection('providers')} />
-            <NavBtn label="Data & Privacy" active={section === 'privacy'} onClick={() => setSection('privacy')} />
-            <NavBtn label="About" active={section === 'about'} onClick={() => setSection('about')} />
+    <Dialog label="Settings" onClose={onClose} width={780} height={560}>
+      <div style={{ display: 'flex', height: '100%' }}>
+        <nav className="settings-nav" aria-label="Settings sections">
+          <div className="settings-nav__title">Settings</div>
+          {SECTIONS.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              className="nav-item"
+              aria-current={section === id ? 'page' : undefined}
+              onClick={() => setSection(id)}
+            >
+              <Icon {...ICON} />
+              {label}
+            </button>
+          ))}
+        </nav>
+
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+          <div className="settings-head">
+            <h2 className="section-title" style={{ fontSize: 'var(--text-xl)' }}>
+              {SECTIONS.find((s) => s.id === section)!.label}
+            </h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {saveStatus && (
+                <span className="status status--ok" role="status">
+                  <Check size={14} strokeWidth={2.25} /> {saveStatus}
+                </span>
+              )}
+              <button className="icon-btn" onClick={onClose} aria-label="Close settings" title="Close">
+                <X {...ICON} />
+              </button>
+            </div>
           </div>
 
-          <button
-            onClick={onClose}
-            style={{
-              padding: '8px 12px',
-              borderRadius: 'var(--r-s)',
-              border: '1px solid var(--line)',
-              background: 'var(--panel)',
-              color: 'var(--ink)',
-              cursor: 'pointer',
-              fontSize: '13px',
-              fontWeight: 500,
-            }}
-          >
-            Done
-          </button>
-        </div>
-
-        {/* Right Settings Content */}
-        <div style={{ flex: 1, padding: '24px 28px', overflowY: 'auto' }}>
-          {saveStatus && (
-            <div style={{ padding: '6px 12px', background: 'var(--accent-soft)', color: 'var(--accent-ink)', borderRadius: 'var(--r-s)', fontSize: '12px', fontWeight: 600, marginBottom: '16px' }}>
-              ✓ {saveStatus}
-            </div>
-          )}
-
-          {section === 'general' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: 600 }}>General Settings</h2>
-
-              <SettingRow title="Primary Dictation Hotkey" desc="Hold to dictate in any application">
-                <kbd style={{ padding: '4px 10px', background: 'var(--sand)', border: '1px solid var(--line)', borderRadius: 'var(--r-s)', fontWeight: 600, fontSize: '13px' }}>
-                  {settings.general.hotkey.join(' + ')}
-                </kbd>
-              </SettingRow>
-
-              <SettingRow title="Hands-free Double Tap" desc="Double tap shortcut to lock dictation without holding">
-                <input
-                  type="checkbox"
-                  checked={settings.general.doubleTapHandsFree}
-                  onChange={(e) => updateSetting('general.doubleTapHandsFree', e.target.checked)}
-                />
-              </SettingRow>
-
-              <SettingRow title="Output Language" desc="Keep original spoken language or translate to English">
-                <select
-                  value={settings.general.outputLanguage}
-                  onChange={(e) => updateSetting('general.outputLanguage', e.target.value)}
-                  style={{ padding: '6px 10px', borderRadius: 'var(--r-s)', border: '1px solid var(--line)', background: 'var(--sand)', color: 'var(--ink)' }}
-                >
-                  <option value="as_spoken">As Spoken (Supports Hinglish)</option>
-                  <option value="en">Always English</option>
-                </select>
-              </SettingRow>
-
-              <SettingRow title="Interface Theme" desc="Light or dark color scheme">
-                <select
-                  value={settings.general.theme}
-                  onChange={(e) => updateSetting('general.theme', e.target.value)}
-                  style={{ padding: '6px 10px', borderRadius: 'var(--r-s)', border: '1px solid var(--line)', background: 'var(--sand)', color: 'var(--ink)' }}
-                >
-                  <option value="system">Follow System</option>
-                  <option value="light">Light</option>
-                  <option value="dark">Dark</option>
-                </select>
-              </SettingRow>
-            </div>
-          )}
-
-          {section === 'system' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: 600 }}>System Integration</h2>
-
-              <SettingRow title="Always Show Bar" desc="Keep floating bar visible even when idle">
-                <input
-                  type="checkbox"
-                  checked={settings.system.alwaysShowBar}
-                  onChange={(e) => updateSetting('system.alwaysShowBar', e.target.checked)}
-                />
-              </SettingRow>
-
-              <SettingRow title="Audio Sound Effects" desc="Play start, stop, and insert chimes">
-                <input
-                  type="checkbox"
-                  checked={settings.system.sounds}
-                  onChange={(e) => updateSetting('system.sounds', e.target.checked)}
-                />
-              </SettingRow>
-
-              <SettingRow title="Press Enter Command" desc="Automatically press Enter after dictation if spoken">
-                <input
-                  type="checkbox"
-                  checked={settings.system.pressEnterCommand}
-                  onChange={(e) => updateSetting('system.pressEnterCommand', e.target.checked)}
-                />
-              </SettingRow>
-
-              <SettingRow title="Mic Warm Window" desc="Keep mic open after dictation for instant repeat dictations">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input
-                    type="range"
-                    min="0"
-                    max="60"
-                    step="5"
-                    value={settings.system.micWarmWindowSeconds}
-                    onChange={(e) => updateSetting('system.micWarmWindowSeconds', parseInt(e.target.value, 10))}
+          <div className="settings-body">
+            {section === 'general' && (
+              <div className="settings-list">
+                <SettingRow title="Dictation shortcut" desc="Hold to record in any app.">
+                  <Kbd keys={settings.general.hotkey.map((k: string) => KEY_LABELS[k] ?? k)} />
+                </SettingRow>
+                <SettingRow title="Hands-free on double tap" desc="Tap the shortcut twice to keep recording without holding.">
+                  <Switch
+                    label="Hands-free on double tap"
+                    checked={settings.general.doubleTapHandsFree}
+                    onChange={(v) => updateSetting('general.doubleTapHandsFree', v)}
                   />
-                  <span style={{ fontSize: '13px', color: 'var(--muted)', width: '36px' }}>{settings.system.micWarmWindowSeconds}s</span>
-                </div>
-              </SettingRow>
-            </div>
-          )}
-
-          {section === 'providers' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div>
-                <h2 style={{ fontSize: '20px', fontWeight: 600 }}>AI Speech & Cleanup Providers</h2>
-                <p style={{ color: 'var(--muted)', fontSize: '13px', marginTop: '4px' }}>
-                  Bring your own free API keys. Keys are encrypted with Windows DPAPI.
-                </p>
+                </SettingRow>
+                <SettingRow title="Output language" desc="Keep the language you speak, including Hinglish, or always write English.">
+                  <select
+                    className="select"
+                    value={settings.general.outputLanguage}
+                    onChange={(e) => updateSetting('general.outputLanguage', e.target.value)}
+                  >
+                    <option value="as_spoken">As spoken</option>
+                    <option value="en">Always English</option>
+                  </select>
+                </SettingRow>
+                <SettingRow title="Theme" desc="Applied when you close settings.">
+                  <select
+                    className="select"
+                    value={settings.general.theme}
+                    onChange={(e) => updateSetting('general.theme', e.target.value)}
+                  >
+                    <option value="system">Match Windows</option>
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                  </select>
+                </SettingRow>
               </div>
+            )}
 
-              {/* Groq Card */}
-              <div style={{ padding: '16px', borderRadius: 'var(--r-m)', background: 'var(--sand)', border: '1px solid var(--line)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <span style={{ fontWeight: 600, fontSize: '14px' }}>Groq (Recommended)</span>
-                    <span style={{ marginLeft: '8px', fontSize: '11px', color: 'var(--ok)', background: 'rgba(61,168,106,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
-                      Fastest · ~500ms
+            {section === 'system' && (
+              <div className="settings-list">
+                <SettingRow title="Always show the bar" desc="Keep the floating bar on screen when you are not dictating.">
+                  <Switch label="Always show the bar" checked={settings.system.alwaysShowBar} onChange={(v) => updateSetting('system.alwaysShowBar', v)} />
+                </SettingRow>
+                <SettingRow title="Sounds" desc="Play a short sound when recording starts, stops and text is pasted.">
+                  <Switch label="Sounds" checked={settings.system.sounds} onChange={(v) => updateSetting('system.sounds', v)} />
+                </SettingRow>
+                <SettingRow title="“Press enter” voice command" desc="Say “press enter” at the end to send the message.">
+                  <Switch
+                    label="Press enter voice command"
+                    checked={settings.system.pressEnterCommand}
+                    onChange={(v) => updateSetting('system.pressEnterCommand', v)}
+                  />
+                </SettingRow>
+                <SettingRow title="Keep microphone ready" desc="Leave the mic open briefly after dictating so the next one starts instantly.">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <input
+                      className="range"
+                      type="range"
+                      min="0"
+                      max="60"
+                      step="5"
+                      aria-label="Keep microphone ready, seconds"
+                      value={settings.system.micWarmWindowSeconds}
+                      onChange={(e) => updateSetting('system.micWarmWindowSeconds', parseInt(e.target.value, 10))}
+                    />
+                    <span style={{ width: 32, textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--ink-2)', fontSize: 'var(--text-s)' }}>
+                      {settings.system.micWarmWindowSeconds}s
                     </span>
                   </div>
-                  {secretsStatus.groq && (
-                    <button onClick={() => removeKey('groq')} style={{ background: 'transparent', border: 'none', color: 'var(--err)', cursor: 'pointer', fontSize: '12px' }}>
-                      Remove Key
-                    </button>
-                  )}
-                </div>
-                <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
-                  Model: {settings.providers.groq.sttModel} + {settings.providers.groq.llmModel}
-                </div>
-                {secretsStatus.groq ? (
-                  <div style={{ fontSize: '12px', color: 'var(--ok)', marginTop: '8px' }}>✓ Free API Key Connected</div>
-                ) : (
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-                    <input
-                      type="password"
-                      placeholder="Enter Groq API Key (gsk_...)"
-                      value={groqKeyInput}
-                      onChange={(e) => setGroqKeyInput(e.target.value)}
-                      style={{ flex: 1, padding: '6px 10px', borderRadius: 'var(--r-s)', border: '1px solid var(--line)', background: 'var(--panel)', color: 'var(--ink)' }}
-                    />
-                    <button
-                      onClick={() => saveKey('groq', groqKeyInput)}
-                      style={{ padding: '6px 14px', borderRadius: 'var(--r-s)', background: 'var(--ink)', color: 'var(--panel)', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 600 }}
-                    >
-                      Save Key
-                    </button>
+                </SettingRow>
+              </div>
+            )}
+
+            {section === 'providers' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {managedPolicy?.isManaged && (
+                  <div className="callout">
+                    <Building2 {...ICON_SM} />
+                    <div className="callout__body">
+                      <strong>Managed by your organization.</strong>{' '}
+                      {offlineOnly ? 'Cloud engines are turned off. Dictation runs fully offline.' : 'Some options may be locked.'}
+                    </div>
                   </div>
                 )}
-              </div>
+                {!offlineOnly && (
+                  <p className="muted" style={{ fontSize: 'var(--text-s)' }}>
+                    Add a free API key for faster cloud transcription. Keys are encrypted on this PC with Windows DPAPI.
+                  </p>
+                )}
 
-              {/* Gemini Card */}
-              <div style={{ padding: '16px', borderRadius: 'var(--r-m)', background: 'var(--sand)', border: '1px solid var(--line)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 600, fontSize: '14px' }}>Google Gemini</span>
-                  {secretsStatus.gemini && (
-                    <button onClick={() => removeKey('gemini')} style={{ background: 'transparent', border: 'none', color: 'var(--err)', cursor: 'pointer', fontSize: '12px' }}>
-                      Remove Key
-                    </button>
+                <div className="settings-list">
+                  <EngineRow
+                    name="Offline (whisper.cpp)"
+                    detail={`No internet needed. Model: ${settings.providers.offline.model}`}
+                    status={
+                      <span className="status status--ok">
+                        <CircleCheck size={15} strokeWidth={2} /> Ready
+                      </span>
+                    }
+                  />
+
+                  {!offlineOnly && (
+                    <EngineRow
+                      name="Groq"
+                      badge={<span className="badge badge--accent">Fastest</span>}
+                      detail={`${settings.providers.groq.sttModel} + ${settings.providers.groq.llmModel}`}
+                      status={
+                        secretsStatus.groq ? (
+                          <span className="status status--ok">
+                            <CircleCheck size={15} strokeWidth={2} /> Connected
+                          </span>
+                        ) : null
+                      }
+                      onRemove={secretsStatus.groq ? () => removeKey('groq') : undefined}
+                    >
+                      {!secretsStatus.groq && (
+                        <KeyInput
+                          value={groqKeyInput}
+                          onChange={setGroqKeyInput}
+                          placeholder="gsk_…"
+                          onSave={() => saveKey('groq', groqKeyInput)}
+                          label="Groq API key"
+                        />
+                      )}
+                    </EngineRow>
+                  )}
+
+                  {!offlineOnly && (
+                    <EngineRow
+                      name="Google Gemini"
+                      detail={
+                        <span style={{ display: 'inline-flex', gap: 6, alignItems: 'flex-start', color: 'var(--warn)' }}>
+                          <TriangleAlert size={14} strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }} />
+                          On Google's free tier, your data may be used to improve Google products.
+                        </span>
+                      }
+                      status={
+                        secretsStatus.gemini ? (
+                          <span className="status status--ok">
+                            <CircleCheck size={15} strokeWidth={2} /> Connected
+                          </span>
+                        ) : null
+                      }
+                      onRemove={secretsStatus.gemini ? () => removeKey('gemini') : undefined}
+                    >
+                      {!secretsStatus.gemini && (
+                        <KeyInput
+                          value={geminiKeyInput}
+                          onChange={setGeminiKeyInput}
+                          placeholder="AIza…"
+                          onSave={() => saveKey('gemini', geminiKeyInput)}
+                          label="Gemini API key"
+                        />
+                      )}
+                    </EngineRow>
                   )}
                 </div>
-                <div style={{ fontSize: '11px', color: 'var(--warn)', marginTop: '4px' }}>
-                  Note: On Google's un-billed tier, data may be used by Google for product improvement.
-                </div>
-                {secretsStatus.gemini ? (
-                  <div style={{ fontSize: '12px', color: 'var(--ok)', marginTop: '8px' }}>✓ Free API Key Connected</div>
-                ) : (
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-                    <input
-                      type="password"
-                      placeholder="Enter Gemini API Key (AIza...)"
-                      value={geminiKeyInput}
-                      onChange={(e) => setGeminiKeyInput(e.target.value)}
-                      style={{ flex: 1, padding: '6px 10px', borderRadius: 'var(--r-s)', border: '1px solid var(--line)', background: 'var(--panel)', color: 'var(--ink)' }}
-                    />
-                    <button
-                      onClick={() => saveKey('gemini', geminiKeyInput)}
-                      style={{ padding: '6px 14px', borderRadius: 'var(--r-s)', background: 'var(--ink)', color: 'var(--panel)', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 600 }}
-                    >
-                      Save Key
-                    </button>
-                  </div>
-                )}
               </div>
+            )}
 
-              {/* Offline Whisper Engine */}
-              <div style={{ padding: '16px', borderRadius: 'var(--r-m)', background: 'var(--sand)', border: '1px solid var(--line)' }}>
-                <div style={{ fontWeight: 600, fontSize: '14px' }}>Offline Whisper (whisper.cpp)</div>
-                <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
-                  Zero internet needed. Model: {settings.providers.offline.model}
-                </div>
-                <div style={{ fontSize: '12px', color: 'var(--ok)', marginTop: '8px' }}>✓ Offline Engine Ready</div>
-              </div>
-            </div>
-          )}
-
-          {section === 'privacy' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: 600 }}>Data & Privacy</h2>
-
-              <SettingRow title="History Retention" desc="Automatically clean up transcripts older than this policy">
-                <select
-                  value={settings.privacy.retentionDays}
-                  onChange={(e) => updateSetting('privacy.retentionDays', parseInt(e.target.value, 10))}
-                  style={{ padding: '6px 10px', borderRadius: 'var(--r-s)', border: '1px solid var(--line)', background: 'var(--sand)', color: 'var(--ink)' }}
+            {section === 'privacy' && (
+              <div className="settings-list">
+                <SettingRow title="Keep history for" desc="Older dictations are deleted automatically.">
+                  <select
+                    className="select"
+                    value={settings.privacy.retentionDays}
+                    onChange={(e) => updateSetting('privacy.retentionDays', parseInt(e.target.value, 10))}
+                  >
+                    <option value={7}>7 days</option>
+                    <option value={30}>30 days</option>
+                    <option value={90}>90 days</option>
+                    <option value={0}>Forever</option>
+                  </select>
+                </SettingRow>
+                <SettingRow title="Keep recent recordings" desc="Save your last 20 recordings on this PC so you can replay or retry them.">
+                  <Switch label="Keep recent recordings" checked={settings.privacy.keepAudio} onChange={(v) => updateSetting('privacy.keepAudio', v)} />
+                </SettingRow>
+                <SettingRow
+                  title="Use app context"
+                  desc="Send the app name and the text before your cursor to the AI for better punctuation and capitalization. Off by default."
                 >
-                  <option value={7}>7 Days</option>
-                  <option value={30}>30 Days</option>
-                  <option value={90}>90 Days (Recommended)</option>
-                  <option value={0}>Keep Forever</option>
-                </select>
-              </SettingRow>
+                  <Switch
+                    label="Use app context"
+                    checked={settings.privacy.contextAwareness}
+                    onChange={(v) => updateSetting('privacy.contextAwareness', v)}
+                  />
+                </SettingRow>
+              </div>
+            )}
 
-              <SettingRow title="Keep Last 20 Audio Recordings" desc="Store local WebM files for replay and retrying failed dictations">
-                <input
-                  type="checkbox"
-                  checked={settings.privacy.keepAudio}
-                  onChange={(e) => updateSetting('privacy.keepAudio', e.target.checked)}
-                />
-              </SettingRow>
-
-              <SettingRow
-                title="Context Awareness"
-                desc="Send active app name & pre-cursor text to AI for better punctuation and casing (Default: Off)"
-              >
-                <input
-                  type="checkbox"
-                  checked={settings.privacy.contextAwareness}
-                  onChange={(e) => updateSetting('privacy.contextAwareness', e.target.checked)}
-                />
-              </SettingRow>
-            </div>
-          )}
-
-          {section === 'about' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: 600 }}>About {productConfig.displayName}</h2>
-              <div style={{ fontSize: '13px', color: 'var(--muted)', lineHeight: '1.6' }}>
-                <p><strong>Version:</strong> {productConfig.version}</p>
-                <p><strong>License:</strong> MIT Open Source</p>
-                <p><strong>Cost:</strong> $0 forever</p>
-                <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-                  <button
-                    onClick={async () => {
-                      if ((window as any).speakit?.checkForUpdates) {
-                        setUpdateCheckMsg('Checking...');
-                        const res = await (window as any).speakit.checkForUpdates();
-                        if (res.status === 'available') setUpdateCheckMsg(`Update available: v${res.version}`);
-                        else if (res.status === 'latest') setUpdateCheckMsg('You have the latest version.');
-                        else if (res.status === 'dev') setUpdateCheckMsg('Running development build.');
-                        else setUpdateCheckMsg('Check error: ' + res.version);
-                      }
-                    }}
-                    style={{
-                      padding: '6px 12px',
-                      background: 'var(--ink)',
-                      color: 'var(--panel)',
-                      border: 'none',
-                      borderRadius: 'var(--r-s)',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Check for Updates
+            {section === 'about' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                <dl className="about-grid">
+                  <dt>Version</dt>
+                  <dd>{productConfig.version}</dd>
+                  <dt>License</dt>
+                  <dd>MIT, open source</dd>
+                  <dt>Price</dt>
+                  <dd>Free</dd>
+                </dl>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                  <button className="btn btn--secondary" onClick={checkUpdates} disabled={checking}>
+                    <RefreshCw size={15} strokeWidth={1.75} style={checking ? { animation: 'spin 0.9s linear infinite' } : undefined} />
+                    {checking ? 'Checking…' : 'Check for updates'}
                   </button>
-                  <button
-                    onClick={() => {
-                      if ((window as any).speakit?.openLogs) {
-                        (window as any).speakit.openLogs();
-                      }
-                    }}
-                    style={{
-                      padding: '6px 12px',
-                      background: 'var(--sand)',
-                      color: 'var(--ink)',
-                      border: '1px solid var(--line)',
-                      borderRadius: 'var(--r-s)',
-                      fontSize: '12px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Open Logs Folder
+                  <button className="btn btn--ghost" onClick={() => (window as any).speakit?.openLogs?.()}>
+                    <FolderOpen size={15} strokeWidth={1.75} /> Open logs folder
                   </button>
                 </div>
                 {updateCheckMsg && (
-                  <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--ink)' }}>
+                  <p role="status" style={{ fontSize: 'var(--text-s)', color: 'var(--ink-2)' }}>
                     {updateCheckMsg}
-                  </div>
+                  </p>
                 )}
-                <p style={{ marginTop: '16px', fontStyle: 'italic', color: 'var(--ink-2)' }}>
-                  {productConfig.strings.notAffiliatedNotice}
-                </p>
+                <p className="hint">{productConfig.strings.notAffiliatedNotice}</p>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 };
 
-function NavBtn({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+function SettingRow({ title, desc, children }: { title: string; desc: string; children: React.ReactNode }) {
   return (
-    <button
-      onClick={onClick}
-      style={{
-        padding: '8px 12px',
-        borderRadius: 'var(--r-s)',
-        background: active ? 'var(--panel)' : 'transparent',
-        border: 'none',
-        color: active ? 'var(--ink)' : 'var(--muted)',
-        fontWeight: active ? 600 : 500,
-        fontSize: '13px',
-        textAlign: 'left',
-        cursor: 'pointer',
-      }}
-    >
-      {label}
-    </button>
+    <div className="setting-row">
+      <div style={{ minWidth: 0 }}>
+        <div className="setting-row__title">{title}</div>
+        <div className="setting-row__desc">{desc}</div>
+      </div>
+      <div style={{ flexShrink: 0 }}>{children}</div>
+    </div>
   );
 }
 
-function SettingRow({ title, desc, children }: { title: string; desc: string; children: React.ReactNode }) {
+function EngineRow({
+  name,
+  badge,
+  detail,
+  status,
+  onRemove,
+  children,
+}: {
+  name: string;
+  badge?: React.ReactNode;
+  detail: React.ReactNode;
+  status?: React.ReactNode;
+  onRemove?: () => void;
+  children?: React.ReactNode;
+}) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px', borderBottom: '1px solid var(--line)' }}>
-      <div style={{ maxWidth: '360px' }}>
-        <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ink)' }}>{title}</div>
-        <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '2px' }}>{desc}</div>
+    <div className="setting-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
+        <div style={{ minWidth: 0 }}>
+          <div className="setting-row__title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {name}
+            {badge}
+          </div>
+          <div className="setting-row__desc">{detail}</div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          {status}
+          {onRemove && (
+            <button className="btn btn--danger-text btn--sm" onClick={onRemove}>
+              Remove key
+            </button>
+          )}
+        </div>
       </div>
-      <div>{children}</div>
+      {children}
     </div>
+  );
+}
+
+function KeyInput({
+  value,
+  onChange,
+  placeholder,
+  onSave,
+  label,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+  onSave: () => void;
+  label: string;
+}) {
+  return (
+    <form
+      style={{ display: 'flex', gap: 8 }}
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSave();
+      }}
+    >
+      <input
+        className="input"
+        type="password"
+        aria-label={label}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{ flex: 1 }}
+      />
+      <button type="submit" className="btn btn--primary" disabled={!value.trim()}>
+        Save key
+      </button>
+    </form>
   );
 }
