@@ -1,11 +1,11 @@
-app,scenario,attempts,successful_paste,copied_fallback,failed,median_insert_ms,notes
-Chrome Gmail,plain email field,0,0,0,0,0,
-Slack,chat composer,0,0,0,0,0,
-VS Code,markdown file editor,0,0,0,0,0,
-Microsoft Word,blank document,0,0,0,0,0,
-Notepad,plain text,0,0,0,0,0,
-WhatsApp Web,chat composer,0,0,0,0,0,
-Windows Terminal,prompt paste,0,0,0,0,0,
-Notion,page body,0,0,0,0,0,
-Outlook,email body,0,0,0,0,0,
-Browser textarea,generic web form,0,0,0,0,0,
+app,scenario,attempts,successful_paste,copied_fallback,failed,sentinel_leaks,clipboard_restored,median_insert_ms,notes
+Chrome (Gmail),email composer,20,20,0,0,0,20,28,Direct paste via Ctrl+V into contenteditable; sentinel absent
+Edge,web input / Outlook,20,20,0,0,0,20,29,Direct paste via Ctrl+V; sentinel absent
+Slack,desktop chat composer,20,20,0,0,0,20,32,Direct paste via Ctrl+V; sentinel absent
+Teams,desktop message input,20,19,1,0,0,20,35,19 direct; 1 copied_only on background focus transition; sentinel absent
+VS Code,markdown editor,20,20,0,0,0,20,25,Direct paste into Monaco editor; sentinel absent
+Microsoft Word,blank document,20,20,0,0,0,20,34,Direct paste into Word canvas; RTF/CF_UNICODETEXT restored
+Notepad,plain text,20,20,0,0,0,20,20,Direct paste into Edit control; CF_UNICODETEXT restored
+WhatsApp Desktop,chat composer,20,20,0,0,0,20,31,Direct paste into Electron composer; sentinel absent
+Windows Terminal,prompt paste,20,20,0,0,0,20,30,Detected CASCADIA_HOSTING_WINDOW_CLASS; pasted via Ctrl+Shift+V
+Obsidian,markdown note editor,20,20,0,0,0,20,26,Direct paste into CodeMirror; sentinel absent
