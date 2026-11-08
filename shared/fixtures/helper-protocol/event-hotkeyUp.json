@@ -1,0 +1,10 @@
+{
+  "v": 1,
+  "id": null,
+  "type": "hotkeyUp",
+  "payload": {
+    "id": "primary-dictation",
+    "t": 1731067205000,
+    "reason": "release"
+  }
+}

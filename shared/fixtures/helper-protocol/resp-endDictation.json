@@ -1,0 +1,8 @@
+{
+  "v": 1,
+  "id": "66666666-6666-6666-6666-666666666666",
+  "type": "endDictationResponse",
+  "payload": {
+    "ok": true
+  }
+}

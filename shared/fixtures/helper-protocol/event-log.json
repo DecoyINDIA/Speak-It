@@ -1,0 +1,9 @@
+{
+  "v": 1,
+  "id": null,
+  "type": "log",
+  "payload": {
+    "level": "info",
+    "msg": "Keyboard hook installed successfully"
+  }
+}

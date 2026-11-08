@@ -1,0 +1,11 @@
+{
+  "v": 1,
+  "id": "55555555-5555-5555-5555-555555555555",
+  "type": "paste",
+  "payload": {
+    "text": "World!",
+    "expectHwnd": 65538,
+    "method": "auto",
+    "pressEnter": false
+  }
+}

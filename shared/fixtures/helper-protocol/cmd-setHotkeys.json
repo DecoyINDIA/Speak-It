@@ -1,0 +1,14 @@
+{
+  "v": 1,
+  "id": "22222222-2222-2222-2222-222222222222",
+  "type": "setHotkeys",
+  "payload": {
+    "bindings": [
+      {
+        "id": "primary-dictation",
+        "keys": ["Control", "Meta"],
+        "mode": "ptt"
+      }
+    ]
+  }
+}

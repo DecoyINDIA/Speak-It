@@ -1,0 +1,13 @@
+{
+  "v": 1,
+  "id": "44444444-4444-4444-4444-444444444444",
+  "type": "getContextResponse",
+  "payload": {
+    "hwnd": 65538,
+    "exe": "notepad.exe",
+    "urlHost": "",
+    "preText": "Hello ",
+    "isPassword": "no",
+    "consoleKind": null
+  }
+}

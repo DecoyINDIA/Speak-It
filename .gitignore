@@ -12,3 +12,7 @@ out/
 SpeakItHelper.exe
 *.exe
 
+*.db
+*.db-wal
+*.db-shm
+*.db.bak-*

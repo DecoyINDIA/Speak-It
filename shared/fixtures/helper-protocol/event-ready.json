@@ -1,0 +1,9 @@
+{
+  "v": 1,
+  "id": null,
+  "type": "ready",
+  "payload": {
+    "version": "1.0.0",
+    "pid": 1234
+  }
+}
