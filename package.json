@@ -13,8 +13,36 @@
     "pack": "electron-vite build && electron-builder --dir",
     "dist": "electron-vite build && electron-builder"
   },
+  "build": {
+    "appId": "com.speakit.app",
+    "productName": "SpeakIt",
+    "directories": {
+      "output": "dist-app"
+    },
+    "files": [
+      "out/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "native/helper/SpeakItHelper.exe",
+        "to": "native-helper/SpeakItHelper.exe"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "executableName": "SpeakIt"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false
+    }
+  },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
+    "electron-updater": "^6.8.11",
     "zod": "^3.24.2"
   },
   "devDependencies": {

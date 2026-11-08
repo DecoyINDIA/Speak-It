@@ -1,8 +1,9 @@
-import { ipcMain, BrowserWindow } from 'electron';
+import { ipcMain, BrowserWindow, shell } from 'electron';
 import { validateSender } from './senderValidation';
 import { AppDatabase } from '../storage/database';
 import { WindowManager } from '../windows/windowManager';
 import { logger } from '../logger';
+import { checkForUpdatesManual } from '../updater';
 
 export function registerIpcHandlers(db: AppDatabase, windowManager: WindowManager): void {
   // --- Hub Handlers ---
@@ -94,6 +95,17 @@ export function registerIpcHandlers(db: AppDatabase, windowManager: WindowManage
     if (!validateSender(event, 'hub')) throw new Error('Unauthorized IPC sender');
     db.updateStyle(category, tone, customInstructions);
     return { ok: true };
+  });
+
+  ipcMain.handle('hub:open-logs', (event) => {
+    if (!validateSender(event, 'hub')) throw new Error('Unauthorized IPC sender');
+    shell.openPath(logger.getLogDir());
+    return { ok: true };
+  });
+
+  ipcMain.handle('hub:check-for-updates', async (event) => {
+    if (!validateSender(event, 'hub')) throw new Error('Unauthorized IPC sender');
+    return await checkForUpdatesManual();
   });
 
   // --- Window Control Handlers ---

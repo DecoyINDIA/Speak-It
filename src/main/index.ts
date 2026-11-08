@@ -7,6 +7,7 @@ import { WindowManager } from './windows/windowManager';
 import { registerIpcHandlers } from './ipc';
 import { setupPowerMonitoring } from './power';
 import { DictationController } from './dictation/controller';
+import { setupAutoUpdater } from './updater';
 import { logger } from './logger';
 
 // --- Single Instance Lock ---
@@ -107,6 +108,9 @@ app.whenReady().then(() => {
   // Start Dictation Controller & Helper
   controller = new DictationController(db, windowManager);
   controller.start();
+
+  // Setup auto-updates
+  setupAutoUpdater();
 
   app.on('second-instance', () => {
     if (windowManager.hubWindow) {

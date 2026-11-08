@@ -35,6 +35,8 @@ export const hubApi = {
   minimize: () => ipcRenderer.send('window:minimize'),
   maximize: () => ipcRenderer.send('window:maximize'),
   close: () => ipcRenderer.send('window:close'),
+  openLogs: () => ipcRenderer.invoke('hub:open-logs'),
+  checkForUpdates: () => ipcRenderer.invoke('hub:check-for-updates'),
 
   // Listeners
   onDictationUpdated: (callback: (data: unknown) => void) => {

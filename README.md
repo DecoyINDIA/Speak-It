@@ -1,66 +1,111 @@
-# VoiceDraft (SpeakIt) — AI Voice Writing Assistant
+# SpeakIt — High-Performance Desktop Voice Writing Assistant
 
-**VoiceDraft** is an open-source, privacy-first, desktop-first AI writing assistant. It captures your messy voice thoughts, cleans them up into polished writing using Google Gemini, and inserts them directly at your active text cursor in any application.
+**SpeakIt** is a fast, privacy-first, desktop-native AI voice dictation and writing assistant for Windows. It runs system-wide, transcribes speech with ultra-low latency, formats raw speech into clear, structured prose using AI, and pastes text directly into any focused application.
+
+> *SpeakIt is an independent open-source project and is not affiliated with, endorsed by, or sponsored by Wispr or the creators of Wispr Flow.*
 
 ---
 
 ## Key Features
-- **Global Hotkey (`Alt + Space`)**: Push-to-talk dictation in any app (Gmail, Slack, VS Code, Browser, Word, etc.).
-- **AI-Powered Cleanup**: Not just raw transcription. It removes fillers, false starts, fixes grammar, and formats structural lists automatically.
-- **Dynamic Context Modes**: Default, Email, and Chat modes to tailor formatting and tone.
-- **Personal Dictionary**: Add custom product names, jargon, or colleague names to boost speech-to-text accuracy and ensure correct casing.
-- **Privacy First (Local Database)**: User configurations, history, and dictionary terms are stored entirely locally in your system's AppData directory (`db.json`).
-- **Bring Your Own Key (BYOK)**: Connects directly to Google Gemini using your personal API key, stored locally.
+
+- **Global Push-to-Talk & Double-Tap Hands-Free:** Trigger dictation anywhere with `Ctrl + Win` (or configurable custom hotkeys). Includes missed-key polling, Start-menu mask key (`VK 0xE8`), and 200ms chord conflict abort.
+- **Sub-Second Streaming Pipeline:** Powered by Groq's LPU inference (`whisper-large-v3-turbo` + `llama-3.3-70b-versatile`) with p50 latency under 2 seconds.
+- **Smart Formatting Engine:** Removes conversational filler words ("um", "ah"), fixes false starts, formats lists and punctuation, and preserves technical terminology without hallucinating answers.
+- **Zero-Cloud Offline Mode:** Downloadable local Whisper engine (`whisper-server.exe`) paired with local Ollama or LM Studio endpoints for 100% offline, private dictation.
+- **Native Helper v2 (`SpeakItHelper.exe`):** C# low-level hook and Win32 delayed-rendering clipboard architecture (`WM_RENDERFORMAT`) with sequence number verification (`S0`/`S1`) and zero-loss clipboard restoration.
+- **Security & Privacy Hardened:**
+  - API keys encrypted with Windows DPAPI (`safeStorage`).
+  - Strict Content Security Policy (CSP), disabled Node integration, isolated renderers.
+  - Zero telemetry by default. Rotating local-only diagnostic logs (5 × 2MB).
+  - Outbound network egress strictly whitelisted.
+- **Modern Hub & Bar Interface:** Floating status pill with 9 live audio RMS volume bars, full Hub application with Dictation History (FTS5 search), Personal Dictionary, Snippets, Writing Styles, and Settings.
+
+---
+
+## Architecture Overview
+
+```
+SpeakIt/
+├── native/helper/          # Native C# (.NET 4.8) hook & delayed-rendering helper
+├── src/
+│   ├── main/               # Electron Main Process (TypeScript)
+│   │   ├── dictation/      # State machine, insert queue, smart formatter
+│   │   ├── helper/         # Line-delimited JSON IPC helper client
+│   │   ├── providers/      # Groq, Gemini, and Offline Whisper providers
+│   │   ├── storage/        # SQLite database (better-sqlite3), DPAPI secret store
+│   │   └── windows/        # Window Manager (Hub, Bar, Audio host)
+│   ├── preload/            # Context-isolated secure preload scripts
+│   └── renderer/           # React 19 + TypeScript modern UI (Hub & Bar)
+├── docs/                   # Documentation (providers, release, privacy, parity)
+└── test/                   # Golden benchmark suite (50 cases), unit, and contract tests
+```
 
 ---
 
 ## Getting Started
 
-### 1. Requirements
-- Node.js (v18 or higher)
-- NPM (v9 or higher)
-- A Windows computer (Auto-paste is Windows-optimized; copy-to-clipboard fallback for macOS/Linux)
-- A Google Gemini API Key (Get a free or pay-as-you-go key from [Google AI Studio](https://aistudio.google.com/))
+### Prerequisites
+- Windows 10 (22H2+) or Windows 11
+- Node.js 22 LTS or higher
+- .NET Framework 4.8 (pre-installed on Windows 10/11)
 
-### 2. Installation & Setup
-Clone the repository and install all dependencies:
-```bash
-git clone https://github.com/your-username/voicedraft.git
-cd voicedraft
-npm run install-all
-```
+### Installation & Setup
 
-### 3. Run in Development
-Start the compilation watch and run the Electron desktop application concurrently:
-```bash
-npm run dev
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-username/speakit.git
+   cd speakit
+   ```
 
-### 4. Configure Your API Key
-1. Once the application starts, it will minimize to your system tray.
-2. Double-click the tray icon or right-click and select **VoiceDraft Dashboard**.
-3. Navigate to **Settings** and input your **Gemini API Key**.
-4. Click **Save Settings**. Once validation succeeds, the health alert warning will disappear.
-5. You're ready! Focus any editor (like Notepad), press and hold `Alt + Space`, speak your mind, and release the hotkey to see the polished text automatically type out.
+2. **Install dependencies:**
+   ```bash
+   npm install --legacy-peer-deps
+   ```
+
+3. **Build the Native Helper:**
+   Using the .NET CLI:
+   ```bash
+   dotnet build native/helper/SpeakItHelper.csproj -c Release
+   ```
+   Or using the pre-installed Windows C# compiler:
+   ```powershell
+   & "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /target:winexe /optimize+ /platform:x64 /out:native/helper/bin/Release/SpeakItHelper.exe native/helper/src/Program.cs
+   ```
+
+4. **Run in Development:**
+   ```bash
+   npm run dev
+   ```
 
 ---
 
-## Production Build & Packaging
+## Testing & Quality Benchmarks
 
-To compile the backend services and bundle the Electron application into a single executable installer:
+Run the complete test suite:
+```bash
+# Run all unit tests, state machine tests, and golden benchmark
+npm test
+
+# Type checking
+npm run typecheck
+
+# Golden prompt benchmark (50 curated test cases)
+npx vitest run test/unit/golden.test.ts
+```
+
+---
+
+## Production Packaging
+
+To build the self-contained per-user NSIS installer:
 ```bash
 npm run build
+npx electron-builder --win nsis
 ```
-The compiled output will be generated inside the `desktop/dist-app/` folder as a self-contained installation package (e.g., `.exe` or `.dmg`).
-
----
-
-## Project Structure
-- `/desktop`: Electron app renderer and main processes, system tray indicators, and keyboard integration.
-- `/backend`: Core services handling audio processing, database caching, and direct connection with the Google Gen AI SDK.
-- `/scripts`: Custom development tools and scripts.
+The installer will be generated in the `dist/` directory.
 
 ---
 
 ## License
-MIT License - Open for modification and community distribution.
+
+This project is licensed under the [MIT License](LICENSE).

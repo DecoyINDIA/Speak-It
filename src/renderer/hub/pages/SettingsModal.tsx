@@ -10,6 +10,7 @@ export const SettingsModal: React.FC<{ isOpen: boolean; onClose: () => void }> =
   const [groqKeyInput, setGroqKeyInput] = useState('');
   const [geminiKeyInput, setGeminiKeyInput] = useState('');
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
+  const [updateCheckMsg, setUpdateCheckMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -349,7 +350,56 @@ export const SettingsModal: React.FC<{ isOpen: boolean; onClose: () => void }> =
                 <p><strong>Version:</strong> {productConfig.version}</p>
                 <p><strong>License:</strong> MIT Open Source</p>
                 <p><strong>Cost:</strong> $0 forever</p>
-                <p style={{ marginTop: '12px', fontStyle: 'italic', color: 'var(--ink-2)' }}>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                  <button
+                    onClick={async () => {
+                      if ((window as any).speakit?.checkForUpdates) {
+                        setUpdateCheckMsg('Checking...');
+                        const res = await (window as any).speakit.checkForUpdates();
+                        if (res.status === 'available') setUpdateCheckMsg(`Update available: v${res.version}`);
+                        else if (res.status === 'latest') setUpdateCheckMsg('You have the latest version.');
+                        else if (res.status === 'dev') setUpdateCheckMsg('Running development build.');
+                        else setUpdateCheckMsg('Check error: ' + res.version);
+                      }
+                    }}
+                    style={{
+                      padding: '6px 12px',
+                      background: 'var(--ink)',
+                      color: 'var(--panel)',
+                      border: 'none',
+                      borderRadius: 'var(--r-s)',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Check for Updates
+                  </button>
+                  <button
+                    onClick={() => {
+                      if ((window as any).speakit?.openLogs) {
+                        (window as any).speakit.openLogs();
+                      }
+                    }}
+                    style={{
+                      padding: '6px 12px',
+                      background: 'var(--sand)',
+                      color: 'var(--ink)',
+                      border: '1px solid var(--line)',
+                      borderRadius: 'var(--r-s)',
+                      fontSize: '12px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Open Logs Folder
+                  </button>
+                </div>
+                {updateCheckMsg && (
+                  <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--ink)' }}>
+                    {updateCheckMsg}
+                  </div>
+                )}
+                <p style={{ marginTop: '16px', fontStyle: 'italic', color: 'var(--ink-2)' }}>
                   {productConfig.strings.notAffiliatedNotice}
                 </p>
               </div>

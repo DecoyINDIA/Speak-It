@@ -1,48 +1,43 @@
-name: Build & Release
+name: SpeakIt CI/CD
 
 on:
   push:
-    tags:
-      - 'v*' # Trigger build on version tag pushes (e.g. v1.0.0)
-  workflow_dispatch: # Allow manual trigger
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
 
 jobs:
-  build:
-    name: Package and Release
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest]
+  build-and-test:
+    runs-on: windows-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Set up Node.js 22 LTS
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: 'npm'
 
-      - name: Install Root Dependencies
-        run: npm ci
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
 
-      - name: Install Backend Dependencies
-        run: npm ci --prefix backend
+      - name: Step 1 - TypeScript Typecheck
+        run: npm run typecheck
 
-      - name: Install Desktop Dependencies
-        run: npm ci --prefix desktop
+      - name: Step 2 - Vitest Unit & Quality Suite
+        run: npm test
 
-      - name: Compile Backend TypeScript
-        run: npm run build:backend
+      - name: Step 3 - Compile SpeakIt Native Helper (net48)
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File native/helper/build.ps1
 
-      - name: Copy Backend to Desktop
-        run: npm run copy-backend
+      - name: Step 4 - Helper Contract Tests
+        run: npx vitest run test/unit/helperClient.test.ts
 
-      - name: Package Desktop Client
-        run: npm run build:desktop
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # To sign macOS app in CI, add code-signing secrets here when certificates are purchased
-          # CSC_LINK: ${{ secrets.CSC_LINK }}
-          # CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+      - name: Step 5 - Electron-Vite Production Build
+        run: npm run build
+
+      - name: Step 6 - Electron-Builder NSIS Package
+        run: npm run pack
