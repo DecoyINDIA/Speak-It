@@ -14,11 +14,14 @@ describe('Native Helper v2 Contract Tests (§9.5)', () => {
   it('spawns helper and completes hello handshake', async () => {
     client = new HelperClient(exePath);
 
-    let readyEventReceived = false;
-    client.on('ready', (payload) => {
-      readyEventReceived = true;
-      expect(payload.version).toBe('1.0.0');
-      expect(payload.pid).toBeGreaterThan(0);
+    // 'ready' is an unsolicited event; the helper may queue it after the hello response,
+    // so wait for it rather than assuming ordering.
+    const ready = new Promise<{ version: string; pid: number }>((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('ready event not received within 5s')), 5000);
+      client.once('ready', (payload) => {
+        clearTimeout(timer);
+        resolve(payload);
+      });
     });
 
     await client.start();
@@ -26,7 +29,10 @@ describe('Native Helper v2 Contract Tests (§9.5)', () => {
     const hello = await client.hello();
     expect(hello.version).toBe('1.0.0');
     expect(hello.pid).toBeGreaterThan(0);
-    expect(readyEventReceived).toBe(true);
+
+    const payload = await ready;
+    expect(payload.version).toBe('1.0.0');
+    expect(payload.pid).toBeGreaterThan(0);
   });
 
   it('responds to ping with ok', async () => {
