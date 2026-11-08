@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: GitHub Discussions (Q&A)
+    url: https://github.com/DecoyINDIA/Speak-It/discussions
+    about: Ask questions and discuss features with the community.
+  - name: Troubleshooting Guide
+    url: https://github.com/DecoyINDIA/Speak-It/blob/main/docs/troubleshooting.md
+    about: Review solutions for elevated windows, Bluetooth latency, and paste issues.

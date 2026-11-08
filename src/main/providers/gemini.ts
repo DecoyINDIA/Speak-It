@@ -9,7 +9,7 @@ export class GeminiProvider implements STTProvider, LLMProvider {
   private sttModel: string;
   private llmModel: string;
 
-  constructor(getApiKey: () => string | null, sttModel = 'gemini-1.5-flash', llmModel = 'gemini-1.5-flash') {
+  constructor(getApiKey: () => string | null, sttModel = 'gemini-2.5-flash', llmModel = 'gemini-2.5-flash') {
     this.getApiKey = getApiKey;
     this.sttModel = sttModel;
     this.llmModel = llmModel;

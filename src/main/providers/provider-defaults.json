@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "updatedAt": "2026-11-08T18:00:00Z",
+  "providers": {
+    "groq": {
+      "sttModel": "whisper-large-v3-turbo",
+      "llmModel": "llama-3.3-70b-versatile",
+      "rpm": 20,
+      "rpd": 2000
+    },
+    "gemini": {
+      "sttModel": "gemini-2.5-flash",
+      "llmModel": "gemini-2.5-flash",
+      "rpm": 15,
+      "rpd": 1500
+    },
+    "offline": {
+      "model": "ggml-model-whisper-small.bin",
+      "idleUnloadMinutes": 10
+    }
+  }
+}

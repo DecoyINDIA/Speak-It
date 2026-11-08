@@ -14,7 +14,7 @@ export const productConfig = {
   whisperServerExeName: 'whisper-server.exe',
   legacyDataFolder: 'VoiceDraft',
   legacyDbFile: 'db.json',
-  version: '1.0.0',
+  version: '0.9.0-beta.1',
   author: 'DecoyINDIA',
   repoUrl: 'https://github.com/DecoyINDIA/Speak-It',
   updateFeedUrl: 'https://github.com/DecoyINDIA/Speak-It/releases/latest',
