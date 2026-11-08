@@ -48,5 +48,10 @@ export function isAllowedHost(urlString: string, customLocalBaseUrl?: string): b
 }
 
 export function isOnline(): boolean {
-  return typeof net.isOnline === 'function' ? net.isOnline() : true;
+  try {
+    if (typeof net !== 'undefined' && net && typeof net.isOnline === 'function') {
+      return net.isOnline();
+    }
+  } catch {}
+  return true;
 }

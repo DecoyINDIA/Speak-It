@@ -1,0 +1,50 @@
+{"id":1,"raw":"um I actually think we should ship it","expected":"I actually think we should ship it."}
+{"id":2,"raw":"we will meet on Monday no wait Tuesday morning at 10","expected":"We will meet on Tuesday morning at 10."}
+{"id":3,"raw":"scratch that let's cancel the meeting","expected":"Let's cancel the meeting."}
+{"id":4,"raw":"can you please fix the bug in index.ts","expected":"Can you please fix the bug in index.ts?"}
+{"id":5,"raw":"my email is john.doe@example.com","expected":"My email is john.doe@example.com."}
+{"id":6,"raw":"the total amount comes out to $4,500.50","expected":"The total amount comes out to $4,500.50."}
+{"id":7,"raw":"uh like we need to update the safeStorage DPAPI module","expected":"We need to update the safeStorage DPAPI module."}
+{"id":8,"raw":"please add three items apples bananas and oranges","expected":"Please add three items: apples, bananas, and oranges."}
+{"id":9,"raw":"new line thank you for your prompt response","expected":"\nThank you for your prompt response."}
+{"id":10,"raw":"new paragraph let's review the quarterly results","expected":"\n\nLet's review the quarterly results."}
+{"id":11,"raw":"hey Subham can we connect on Slack later today","expected":"Hey Subham, can we connect on Slack later today?"}
+{"id":12,"raw":"the API endpoint is POST /api/v1/transcribe","expected":"The API endpoint is POST /api/v1/transcribe."}
+{"id":13,"raw":"aaj ka kaam ho gaya let's wrap up","expected":"Aaj ka kaam ho gaya, let's wrap up."}
+{"id":14,"raw":"no wait let me double check the logs first","expected":"Let me double-check the logs first."}
+{"id":15,"raw":"never mind the weather the launch is definitely on","expected":"Never mind the weather, the launch is definitely on."}
+{"id":16,"raw":"I mean it when I say thanks for all the help","expected":"I mean it when I say thanks for all the help."}
+{"id":17,"raw":"the function returns a Promise of boolean","expected":"The function returns a Promise of boolean."}
+{"id":18,"raw":"git commit -m fix bug in SQLite FTS trigger","expected":"git commit -m \"fix bug in SQLite FTS trigger\""}
+{"id":19,"raw":"why is the sky blue","expected":"Why is the sky blue?"}
+{"id":20,"raw":"what time does the train arrive in Delhi","expected":"What time does the train arrive in Delhi?"}
+{"id":21,"raw":"the flight AI 101 departs at 06:45 AM","expected":"The flight AI 101 departs at 06:45 AM."}
+{"id":22,"raw":"first step initialize database second step register IPC third step start UI","expected":"1. Initialize database\n2. Register IPC\n3. Start UI"}
+{"id":23,"raw":"we reached 100000 daily active users yesterday","expected":"We reached 100,000 daily active users yesterday!"}
+{"id":24,"raw":"let us schedule the sprint demo for Friday afternoon","expected":"Let us schedule the sprint demo for Friday afternoon."}
+{"id":25,"raw":"check if better-sqlite3 is compatible with Node 22","expected":"Check if better-sqlite3 is compatible with Node 22."}
+{"id":26,"raw":"um uh so basically the helper client uses standard I/O","expected":"Basically, the helper client uses standard I/O."}
+{"id":27,"raw":"press enter","expected":"Press enter."}
+{"id":28,"raw":"send the contract to legal@company.org","expected":"Send the contract to legal@company.org."}
+{"id":29,"raw":"hello world this is a test of voice writing","expected":"Hello world, this is a test of voice writing."}
+{"id":30,"raw":"the server is listening on 127.0.0.1 port 8080","expected":"The server is listening on 127.0.0.1 port 8080."}
+{"id":31,"raw":"we need to buy milk bread and eggs","expected":"We need to buy milk, bread, and eggs."}
+{"id":32,"raw":"I think we should do this no wait let us wait until tomorrow","expected":"Let us wait until tomorrow."}
+{"id":33,"raw":"kripya mujhe file bhej dijiye","expected":"Kripya mujhe file bhej dijiye."}
+{"id":34,"raw":"please review PR number 42 on GitHub","expected":"Please review PR #42 on GitHub."}
+{"id":35,"raw":"the CPU usage remained under 0.5 percent during idle","expected":"The CPU usage remained under 0.5% during idle."}
+{"id":36,"raw":"is the deployment ready for production","expected":"Is the deployment ready for production?"}
+{"id":37,"raw":"install npm package with npm install -D vitest","expected":"Install npm package with `npm install -D vitest`."}
+{"id":38,"raw":"meeting notes discussion on roadmap and milestones","expected":"Meeting notes: discussion on roadmap and milestones."}
+{"id":39,"raw":"the latency budget is p50 less than or equal to 2.0 seconds","expected":"The latency budget is p50 ≤ 2.0 seconds."}
+{"id":40,"raw":"happy birthday to you my dear friend","expected":"Happy birthday to you, my dear friend!"}
+{"id":41,"raw":"the password field must be protected from keylogging","expected":"The password field must be protected from keylogging."}
+{"id":42,"raw":"great job team let's celebrate","expected":"Great job team, let's celebrate!"}
+{"id":43,"raw":"please find attached the quarterly financial report","expected":"Please find attached the quarterly financial report."}
+{"id":44,"raw":"who is the prime minister of India","expected":"Who is the prime minister of India?"}
+{"id":45,"raw":"we observed zero dropped frames during audio capture","expected":"We observed zero dropped frames during audio capture."}
+{"id":46,"raw":"can we change the hotkey to Ctrl plus Win","expected":"Can we change the hotkey to Ctrl + Win?"}
+{"id":47,"raw":"the client returned status 200 OK","expected":"The client returned status 200 OK."}
+{"id":48,"raw":"audio format is 16000 Hertz single channel Opus","expected":"Audio format is 16,000 Hz single-channel Opus."}
+{"id":49,"raw":"let's verify the signature using SignPath","expected":"Let's verify the signature using SignPath."}
+{"id":50,"raw":"all fifty tests in the quality suite passed successfully","expected":"All fifty tests in the quality suite passed successfully."}

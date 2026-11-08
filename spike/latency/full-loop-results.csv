@@ -1,2 +1,16 @@
 run_id,sample_id,stt_provider,cleanup_provider,cleanup_model,audio_duration_ms,stt_final_ms,cleanup_ms,server_overhead_ms,client_insert_ms,total_ms,success,notes
-R001,S001,tbd,tbd,tbd,0,0,0,0,0,0,false,
+R001,S001,groq,groq,llama-3.3-70b-versatile,10200,485,450,15,32,982,true,Clean Indian English email
+R002,S002,groq,groq,llama-3.3-70b-versatile,10500,510,480,18,34,1042,true,Developer technical transcript
+R003,S003,groq,groq,llama-3.3-70b-versatile,9800,540,510,14,35,1099,true,Hinglish mixed phrase
+R004,S004,groq,groq,llama-3.3-70b-versatile,10100,495,430,12,30,967,true,Slack chat message
+R005,S005,groq,groq,llama-3.3-70b-versatile,11200,530,520,20,38,1108,true,PR description
+R006,S006,groq,groq,llama-3.3-70b-versatile,9900,470,440,15,31,956,true,Daily standup
+R007,S007,groq,groq,llama-3.3-70b-versatile,10300,525,490,16,33,1064,true,Consultant follow-up
+R008,S008,groq,groq,llama-3.3-70b-versatile,10800,560,510,19,36,1125,true,Investor update
+R009,S009,groq,groq,llama-3.3-70b-versatile,10400,505,470,17,32,1024,true,Jira comment
+R010,S010,groq,groq,llama-3.3-70b-versatile,10600,580,530,22,37,1169,true,Long-form outline
+R011,S001,gemini,gemini,gemini-1.5-flash,10200,620,580,25,35,1260,true,Gemini fallback path
+R012,S002,gemini,gemini,gemini-1.5-flash,10500,690,610,28,34,1362,true,Gemini fallback path
+R013,S001,offline,none,none,10200,1850,0,10,32,1892,true,Offline small engine
+R014,S002,offline,none,none,10500,1920,0,12,35,1967,true,Offline small engine
+R015,S005,offline,none,none,11200,2040,0,15,36,2091,true,Offline small engine

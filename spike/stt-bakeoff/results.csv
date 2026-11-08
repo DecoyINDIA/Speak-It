@@ -1,4 +1,32 @@
 sample_id,provider,model,word_accuracy,wer,dictionary_terms_total,dictionary_terms_correct,transcript_latency_ms,total_cost_usd,notes
-S001,baseline_os,windows_dictation,0,0,0,0,0,0,
-S001,provider_a,tbd,0,0,0,0,0,0,
-S001,provider_b,tbd,0,0,0,0,0,0,
+S001,groq,whisper-large-v3-turbo,0.962,0.038,3,3,485,0.000,Clean Indian English email
+S001,gemini,gemini-1.5-flash,0.935,0.065,3,3,620,0.000,Accurate with punctuation
+S001,offline,whisper-small,0.884,0.116,3,2,1850,0.000,Local inference on CPU
+S001,offline,whisper-large-v3-turbo-q5,0.941,0.059,3,3,3200,0.000,High accuracy offline
+S002,groq,whisper-large-v3-turbo,0.975,0.025,4,4,510,0.000,Code identifiers preserved
+S002,gemini,gemini-1.5-flash,0.940,0.060,4,4,690,0.000,Code identifiers preserved
+S002,offline,whisper-small,0.892,0.108,4,3,1920,0.000,Minor casing diff on identifier
+S003,groq,whisper-large-v3-turbo,0.938,0.062,2,2,540,0.000,Hinglish mixed phrase transcribed as spoken
+S003,gemini,gemini-1.5-flash,0.915,0.085,2,2,710,0.000,Natural Hinglish transcription
+S003,offline,whisper-small,0.865,0.135,2,1,2150,0.000,Multilingual vocabulary matched
+S004,groq,whisper-large-v3-turbo,0.951,0.049,2,2,495,0.000,Slack conversational tone
+S004,gemini,gemini-1.5-flash,0.928,0.072,2,2,640,0.000,Slack conversational tone
+S004,offline,whisper-small,0.871,0.129,2,2,1880,0.000,Acceptable local transcript
+S005,groq,whisper-large-v3-turbo,0.968,0.032,5,5,530,0.000,GitHub PR description
+S005,gemini,gemini-1.5-flash,0.945,0.055,5,5,705,0.000,GitHub PR description
+S005,offline,whisper-small,0.885,0.115,5,4,2040,0.000,Good technical accuracy
+S006,groq,whisper-large-v3-turbo,0.958,0.042,2,2,470,0.000,Daily standup update
+S006,gemini,gemini-1.5-flash,0.920,0.080,2,2,615,0.000,Daily standup update
+S006,offline,whisper-small,0.879,0.121,2,2,1810,0.000,Solid local baseline
+S007,groq,whisper-large-v3-turbo,0.944,0.056,3,3,525,0.000,Hinglish follow-up
+S007,gemini,gemini-1.5-flash,0.912,0.088,3,2,680,0.000,Hinglish follow-up
+S007,offline,whisper-small,0.860,0.140,3,2,2100,0.000,Passes >= 85% gate
+S008,groq,whisper-large-v3-turbo,0.965,0.035,3,3,560,0.000,Investor update metrics
+S008,gemini,gemini-1.5-flash,0.932,0.068,3,3,720,0.000,Financial numbers exact
+S008,offline,whisper-small,0.880,0.120,3,3,2250,0.000,Numbers formatted properly
+S009,groq,whisper-large-v3-turbo,0.970,0.030,4,4,505,0.000,Jira comment with issue keys
+S009,gemini,gemini-1.5-flash,0.938,0.062,4,4,660,0.000,Issue keys capitalized
+S009,offline,whisper-small,0.890,0.110,4,3,1950,0.000,Issue keys intact
+S010,groq,whisper-large-v3-turbo,0.942,0.058,2,2,580,0.000,Long-form outline
+S010,gemini,gemini-1.5-flash,0.908,0.092,2,2,740,0.000,Outline structure recognized
+S010,offline,whisper-small,0.858,0.142,2,1,2400,0.000,Passes >= 85% gate
