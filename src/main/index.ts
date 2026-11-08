@@ -6,6 +6,7 @@ import { importVoiceDraftData } from './storage/voiceDraftImporter';
 import { WindowManager } from './windows/windowManager';
 import { registerIpcHandlers } from './ipc';
 import { setupPowerMonitoring } from './power';
+import { DictationController } from './dictation/controller';
 import { logger } from './logger';
 
 // --- Single Instance Lock ---
@@ -17,6 +18,7 @@ if (!gotSingleInstanceLock) {
 
 let db: AppDatabase;
 let windowManager: WindowManager;
+let controller: DictationController;
 
 function initializeDatabase(): AppDatabase {
   const userDataDir = path.join(app.getPath('appData'), productConfig.dataFolderName);
@@ -89,18 +91,22 @@ app.whenReady().then(() => {
   // Power monitor lifecycle
   setupPowerMonitoring({
     onSuspend: () => {
-      // In-flight dictations cancelled
+      controller.stateMachine.onCancelRequested();
     },
     onResume: () => {
       // Re-verify audio device and helper
     },
     onLock: () => {
-      // Hotkeys and active recording released
+      controller.stateMachine.onCancelRequested();
     },
     onUnlock: () => {
       // Restored
     },
   });
+
+  // Start Dictation Controller & Helper
+  controller = new DictationController(db, windowManager);
+  controller.start();
 
   app.on('second-instance', () => {
     if (windowManager.hubWindow) {
