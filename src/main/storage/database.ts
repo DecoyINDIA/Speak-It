@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { AppSettings, SettingsSchema, defaultSettings } from './settingsSchema';
 import { SecretStore } from './secretStore';
+import { loadEnterprisePolicy, EnterprisePolicy } from './registryPolicy';
 
 export interface DictationRecord {
   id?: number;
@@ -196,15 +197,34 @@ export class AppDatabase {
   // --- Settings ---
   public getSettings(): AppSettings {
     const row = this.db.prepare('SELECT value FROM settings WHERE key = ?').get('app_settings') as { value: string } | undefined;
-    if (!row) {
-      return defaultSettings;
+    let settings = defaultSettings;
+    if (row) {
+      try {
+        const parsed = JSON.parse(row.value);
+        settings = SettingsSchema.parse(parsed);
+      } catch {
+        settings = defaultSettings;
+      }
     }
-    try {
-      const parsed = JSON.parse(row.value);
-      return SettingsSchema.parse(parsed);
-    } catch {
-      return defaultSettings;
+
+    const policy = loadEnterprisePolicy();
+    if (policy.isManaged) {
+      if (policy.offlineOnly) {
+        settings.providers.chain = ['offline'];
+      }
+      if (policy.allowedProviders) {
+        const allowed = policy.allowedProviders;
+        settings.providers.chain = settings.providers.chain.filter(p => allowed.includes(p.toLowerCase()));
+      }
+      if (policy.forcedRetentionDays !== undefined) {
+        settings.privacy.retentionDays = policy.forcedRetentionDays;
+      }
     }
+    return settings;
+  }
+
+  public getEnterprisePolicy(): EnterprisePolicy {
+    return loadEnterprisePolicy();
   }
 
   public updateSettings(partial: Partial<AppSettings>): AppSettings {
@@ -227,6 +247,11 @@ export class AppDatabase {
 
   // --- Dictations ---
   public insertDictation(d: DictationRecord): number {
+    const policy = loadEnterprisePolicy();
+    if (policy.disableHistory) {
+      return 0; // History disabled by enterprise organization policy
+    }
+
     const stmt = this.db.prepare(`
       INSERT INTO dictations (
         uid, created_at, status, raw_text, clean_text, inserted_text,
@@ -359,6 +384,90 @@ export class AppDatabase {
       dayStreak: streak,
       totalDictations: row.totalDictations || 0,
     };
+  }
+
+  // --- Anonymized Stats Export (§BG2) ---
+  public getAnonymizedStats(appVersion = '0.9.0-beta.1'): Record<string, unknown> {
+    const counts = this.db.prepare(`
+      SELECT status, COUNT(id) as cnt 
+      FROM dictations 
+      GROUP BY status
+    `).all() as { status: string; cnt: number }[];
+
+    const statusCounts: Record<string, number> = {
+      done: 0,
+      copied_only: 0,
+      blocked: 0,
+      failed: 0,
+      cancelled: 0,
+    };
+    let total = 0;
+    for (const c of counts) {
+      statusCounts[c.status] = c.cnt;
+      total += c.cnt;
+    }
+
+    const providerRows = this.db.prepare(`
+      SELECT stt_provider, COUNT(id) as cnt
+      FROM dictations
+      WHERE stt_provider IS NOT NULL
+      GROUP BY stt_provider
+    `).all() as { stt_provider: string; cnt: number }[];
+    const providerBreakdown: Record<string, number> = {};
+    for (const p of providerRows) {
+      providerBreakdown[p.stt_provider] = p.cnt;
+    }
+
+    const pasteRows = this.db.prepare(`
+      SELECT paste_outcome, COUNT(id) as cnt
+      FROM dictations
+      WHERE paste_outcome IS NOT NULL
+      GROUP BY paste_outcome
+    `).all() as { paste_outcome: string; cnt: number }[];
+    const pasteBreakdown: Record<string, number> = {};
+    for (const p of pasteRows) {
+      pasteBreakdown[p.paste_outcome] = p.cnt;
+    }
+
+    const latencies = this.db.prepare(`
+      SELECT total_ms FROM dictations
+      WHERE total_ms IS NOT NULL AND total_ms > 0
+      ORDER BY total_ms ASC
+    `).all() as { total_ms: number }[];
+    const medianLatencyMs = latencies.length > 0
+      ? latencies[Math.floor(latencies.length / 2)].total_ms
+      : 0;
+
+    const stats = this.getStats();
+    const successRatePct = total > 0 ? Math.round(((statusCounts.done + statusCounts.copied_only) / total) * 100) : 0;
+
+    const onboardingSetting = this.db.prepare('SELECT value FROM settings WHERE key = ?').get('onboarding_step_reached') as { value: string } | undefined;
+    const onboardingStep = onboardingSetting ? parseInt(onboardingSetting.value, 10) : 4;
+
+    return {
+      version: appVersion,
+      platform: `${process.platform} ${process.arch}`,
+      summary: {
+        totalDictations: total,
+        successfulDictations: statusCounts.done,
+        copiedOnly: statusCounts.copied_only,
+        blocked: statusCounts.blocked,
+        failed: statusCounts.failed,
+        cancelled: statusCounts.cancelled,
+        successRatePct,
+        totalWords: stats.totalWords,
+        avgWpm: stats.avgWpm,
+        medianLatencyMs,
+      },
+      providerBreakdown,
+      pasteOutcomeBreakdown: pasteBreakdown,
+      onboardingStepReached: onboardingStep,
+      generatedAt: new Date().toISOString(),
+    };
+  }
+
+  public setOnboardingStepReached(step: number): void {
+    this.db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('onboarding_step_reached', String(step));
   }
 
   // --- Retention & Audio Cleanup ---
