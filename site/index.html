@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpeakIt — Voice Typing for Windows that Sounds Like You</title>
+  <meta name="description" content="Voice typing for Windows that understands Hinglish, cleans up your speech, and works offline — free and open source.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <span class="brand-icon">🎙️</span>
+        <span class="brand-name">SpeakIt</span>
+      </div>
+      <nav class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#comparison">vs Win+H</a>
+        <a href="#privacy">Privacy</a>
+        <a href="https://github.com/DecoyINDIA/Speak-It" target="_blank" class="nav-github">GitHub ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-container">
+      <div class="pill-badge">✨ Free & Open Source for Windows 10 & 11</div>
+      <h1 class="hero-title">
+        Voice typing that understands Hinglish, cleans up your speech, and works offline.
+      </h1>
+      <p class="hero-subtitle">
+        Hold <kbd>Ctrl</kbd> + <kbd>Win</kbd>, speak your thoughts in any application, and release. Clean, polished prose pastes instantly right at your cursor.
+      </p>
+      <div class="hero-actions">
+        <a href="https://github.com/DecoyINDIA/Speak-It/releases/latest" class="btn btn-primary">
+          Download SpeakIt (v0.9.0-beta.1) ↓
+        </a>
+        <a href="https://github.com/DecoyINDIA/Speak-It" target="_blank" class="btn btn-secondary">
+          View on GitHub ★
+        </a>
+      </div>
+      <div class="hero-trust">
+        <span>✓ 100% Free Forever</span>
+        <span>✓ Zero Analytics or Telemetry</span>
+        <span>✓ Works Fully Offline</span>
+        <span>✓ No Accounts Needed</span>
+      </div>
+
+      <!-- Mockup Showcase -->
+      <div class="mockup-frame">
+        <div class="mockup-header">
+          <div class="window-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <span class="window-title">SpeakIt Bar · Listening</span>
+        </div>
+        <div class="mockup-body">
+          <div class="pill-bar-preview">
+            <span class="rec-dot"></span>
+            <div class="sound-wave">
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <span class="bar-text">Listening... "Arre Sunita deliverable ready hai, hum Tuesday meeting mein finalize kar lenge."</span>
+          </div>
+          <div class="pasted-result">
+            <div class="result-label">Result pasted into Slack / Word / VS Code:</div>
+            <div class="result-box">
+              "Sunita, deliverable ready hai; hum Tuesday meeting mein finalize kar lenge."
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature Grid -->
+  <section id="features" class="features">
+    <div class="container">
+      <h2 class="section-title">Built for Real Everyday Speech</h2>
+      <p class="section-subtitle">No awkward robotic transcriptions. SpeakIt understands how professionals actually talk.</p>
+
+      <div class="grid-3">
+        <div class="feature-card">
+          <div class="card-icon">🇮🇳</div>
+          <h3>Native Hinglish & Indian Accents</h3>
+          <p>Trained on multilingual Whisper models that accurately capture Hindi-English code-switching without phonetic butchering.</p>
+        </div>
+        <div class="feature-card">
+          <div class="card-icon">⚡</div>
+          <h3>AI Disfluency Removal</h3>
+          <p>Automatically filters out "um", "uh", false starts, and self-corrections ("meet Monday no wait Tuesday" becomes "meet Tuesday").</p>
+        </div>
+        <div class="feature-card">
+          <div class="card-icon">🔒</div>
+          <h3>100% Offline Capability</h3>
+          <p>Run locally using bundled whisper.cpp models. Zero audio or data ever leaves your computer.</p>
+        </div>
+        <div class="feature-card">
+          <div class="card-icon">📖</div>
+          <h3>Custom Vocabulary & Snippets</h3>
+          <p>Teach SpeakIt specific acronyms, names, and team terms with phonetic spelling assistance and instant text expansions.</p>
+        </div>
+        <div class="feature-card">
+          <div class="card-icon">🛡️</div>
+          <h3>Password Field Shield</h3>
+          <p>Automatically detects password input boxes via Windows UI Automation and blocks dictation to prevent credential exposure.</p>
+        </div>
+        <div class="feature-card">
+          <div class="card-icon">💸</div>
+          <h3>$0 Running Cost</h3>
+          <p>Connect your own free-tier API keys (Groq, Gemini) or run local models. No monthly subscriptions, ever.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Section -->
+  <section id="comparison" class="comparison">
+    <div class="container">
+      <h2 class="section-title">How SpeakIt Compares</h2>
+      <p class="section-subtitle">Why settle for Windows Win+H or ₹1,200/month cloud subscriptions?</p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Windows (Win+H)</th>
+              <th>Wispr Flow</th>
+              <th class="highlight">SpeakIt</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Cost</td>
+              <td>Free</td>
+              <td>$12–15 / mo</td>
+              <td class="highlight"><strong>100% Free (MIT)</strong></td>
+            </tr>
+            <tr>
+              <td>Hinglish & Indian English</td>
+              <td>Poor (butchers Hindi words)</td>
+              <td>Good</td>
+              <td class="highlight"><strong>Built for Hinglish (benchmarks pending)</strong></td>
+            </tr>
+            <tr>
+              <td>Removes "um" & Stutters</td>
+              <td>❌ No</td>
+              <td>✓ Yes</td>
+              <td class="highlight"><strong>✓ Yes</strong></td>
+            </tr>
+            <tr>
+              <td>Self-Correction Handling</td>
+              <td>❌ No</td>
+              <td>✓ Yes</td>
+              <td class="highlight"><strong>✓ Yes</strong></td>
+            </tr>
+            <tr>
+              <td>100% Offline Mode</td>
+              <td>Limited</td>
+              <td>❌ No (Cloud only)</td>
+              <td class="highlight"><strong>✓ Built-in whisper.cpp</strong></td>
+            </tr>
+            <tr>
+              <td>Telemetry & Analytics</td>
+              <td>Sent to Microsoft</td>
+              <td>Sent to cloud</td>
+              <td class="highlight"><strong>Zero data collected</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Privacy Guarantee -->
+  <section id="privacy" class="privacy">
+    <div class="container">
+      <div class="privacy-box">
+        <h2>Our Unbreakable Privacy Promise</h2>
+        <p>
+          SpeakIt collects <strong>zero telemetry, zero analytics, zero audio recordings, and zero transcripts</strong>.
+          There are no user accounts, no logins, and no servers run by the author. You can verify every line of code on GitHub.
+        </p>
+        <div class="privacy-links">
+          <a href="https://github.com/DecoyINDIA/Speak-It/blob/main/docs/privacy.md" target="_blank">Read Privacy Policy ↗</a>
+          <a href="https://github.com/DecoyINDIA/Speak-It/blob/main/docs/terms.md" target="_blank">Read Terms of Use ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <p>© 2026 DecoyINDIA. SpeakIt is an independent open-source project under the MIT License.</p>
+      <div class="footer-links">
+        <a href="https://github.com/DecoyINDIA/Speak-It">GitHub</a>
+        <a href="https://github.com/sponsors/DecoyINDIA">GitHub Sponsors</a>
+        <a href="https://buymeacoffee.com/DecoyINDIA">Buy Me a Coffee</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

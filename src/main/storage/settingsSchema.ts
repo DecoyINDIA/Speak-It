@@ -33,11 +33,11 @@ export const ProvidersSettingsSchema = z.object({
     llmModel: 'llama-3.3-70b-versatile',
   }),
   gemini: z.object({
-    sttModel: z.string().default('gemini-1.5-flash'),
-    llmModel: z.string().default('gemini-1.5-flash'),
+    sttModel: z.string().default('gemini-2.5-flash'),
+    llmModel: z.string().default('gemini-2.5-flash'),
   }).default({
-    sttModel: 'gemini-1.5-flash',
-    llmModel: 'gemini-1.5-flash',
+    sttModel: 'gemini-2.5-flash',
+    llmModel: 'gemini-2.5-flash',
   }),
   offline: z.object({
     model: z.string().default('ggml-model-whisper-small.bin'),

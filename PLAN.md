@@ -56,6 +56,22 @@ These go to the §15 backlog unless marked otherwise:
 - **UI localisation** (the UI is English only; dictation languages are covered by F4 and the language settings)
 - Dictation into **elevated (administrator) windows**: Windows UIPI blocks both the hook and input there. This is a documented limitation, not a bug.
 
+### 1.4 Business goals (BG1)
+
+For the 90-day window following the v1.0 public launch:
+
+- **Reach:** 1,000 installer downloads (measured via GitHub Releases API asset download counters).
+- **Activation:** >= 40% of installs completing at least one successful dictation during onboarding or day 1.
+- **Retention:** >= 25% of activated users active and dictating in week 4.
+- **Depth:** Median >= 500 words dictated per active user per week.
+- **Quality:** >= 95% of dictation sessions completing with status `pasted` (as opposed to `copied_only` or `failed`).
+
+### 1.5 Business model & sustainability (BG5)
+
+- **Selected Path:** **Path A (Open-source project)** for v1.0 launch, with zero cost to the author and $0 mandatory cost to users.
+- **Funding:** Voluntary developer sponsorship enabled via GitHub Sponsors and Buy Me a Coffee.
+- **Path B/C Option Value:** The architecture keeps BYOK custom endpoints and registry management compatible with potential future hosted key proxy (Path B) or paid enterprise team deployment/support (Path C) after evaluating 90-day BG1 telemetry. Public marketing copy promises: *"Free to use; works fully offline"* without making unconditional promises against future opt-in managed offerings.
+
 ---
 
 ## 2. Current state (short)

@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { CornerDownRight, Plus, TextCursorInput, Trash2 } from 'lucide-react';
+import { EmptyState, ICON_SM, PageHeader, SearchInput } from '../components/ui';
 
 interface SnippetEntry {
   id: number;
@@ -20,222 +22,125 @@ export const SnippetsPage: React.FC = () => {
   }, []);
 
   async function loadSnippets() {
-    if ((window as any).speakit) {
-      const list = await (window as any).speakit.getSnippets();
-      if (list) setSnippets(list);
-    }
+    const list = await (window as any).speakit?.getSnippets();
+    if (list) setSnippets(list);
   }
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     if (!trigger.trim() || !expansion.trim()) return;
-
-    if ((window as any).speakit) {
-      await (window as any).speakit.addSnippet(trigger.trim(), expansion.trim());
-      setTrigger('');
-      setExpansion('');
-      setShowAddForm(false);
-      loadSnippets();
-    }
+    await (window as any).speakit?.addSnippet(trigger.trim(), expansion.trim());
+    setTrigger('');
+    setExpansion('');
+    setShowAddForm(false);
+    loadSnippets();
   }
 
   async function handleDelete(id: number) {
-    if ((window as any).speakit) {
-      await (window as any).speakit.deleteSnippet(id);
-      loadSnippets();
-    }
+    await (window as any).speakit?.deleteSnippet(id);
+    loadSnippets();
   }
 
+  const q = search.toLowerCase();
   const filtered = snippets.filter(
-    (s) =>
-      s.trigger.toLowerCase().includes(search.toLowerCase()) ||
-      s.expansion.toLowerCase().includes(search.toLowerCase())
+    (s) => s.trigger.toLowerCase().includes(q) || s.expansion.toLowerCase().includes(q)
   );
 
   return (
-    <div style={{ maxWidth: '840px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h1 style={{ fontSize: '26px', fontWeight: 600 }}>Snippets & Shortcuts</h1>
-          <p style={{ color: 'var(--muted)', fontSize: '14px', marginTop: '4px' }}>
-            Say a short trigger phrase to expand into long boilerplate, emails, links, or templates.
-          </p>
-        </div>
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          style={{
-            padding: '8px 16px',
-            borderRadius: 'var(--r-pill)',
-            background: 'var(--ink)',
-            color: 'var(--panel)',
-            border: 'none',
-            cursor: 'pointer',
-            fontWeight: 600,
-            fontSize: '13px',
-          }}
-        >
-          + Add Snippet
-        </button>
-      </div>
+    <div className="page">
+      <PageHeader
+        title="Snippets"
+        subtitle="Say a short phrase and SpeakIt types out the full text: links, addresses, sign-offs, templates."
+        action={
+          !showAddForm && (
+            <button className="btn btn--primary" onClick={() => setShowAddForm(true)}>
+              <Plus size={16} strokeWidth={2.25} /> New snippet
+            </button>
+          )
+        }
+      />
 
       {showAddForm && (
-        <form
-          onSubmit={handleAdd}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px',
-            padding: '18px',
-            borderRadius: 'var(--r-m)',
-            background: 'var(--sand)',
-            border: '1px solid var(--line)',
-          }}
-        >
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '6px' }}>
-              Spoken Trigger Phrase
-            </label>
+        <form className="inline-form" onSubmit={handleAdd}>
+          <label className="field">
+            <span className="label">When I say</span>
             <input
-              type="text"
-              placeholder="e.g. my calendar link"
+              className="input"
+              autoFocus
+              placeholder="my calendar link"
               value={trigger}
               onChange={(e) => setTrigger(e.target.value)}
               required
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                borderRadius: 'var(--r-s)',
-                border: '1px solid var(--line)',
-                background: 'var(--panel)',
-                color: 'var(--ink)',
-                fontSize: '13px',
-              }}
             />
-          </div>
-
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '6px' }}>
-              Expanded Text (Multiline)
-            </label>
+          </label>
+          <label className="field">
+            <span className="label">Type this</span>
             <textarea
+              className="textarea"
               rows={3}
-              placeholder="e.g. Feel free to book a time that works best for you here: https://cal.com/subham"
+              placeholder="Book a time that works for you: https://cal.com/you"
               value={expansion}
               onChange={(e) => setExpansion(e.target.value)}
               required
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                borderRadius: 'var(--r-s)',
-                border: '1px solid var(--line)',
-                background: 'var(--panel)',
-                color: 'var(--ink)',
-                fontSize: '13px',
-                fontFamily: 'inherit',
-                resize: 'vertical',
-              }}
             />
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-            <button
-              type="button"
-              onClick={() => setShowAddForm(false)}
-              style={{
-                padding: '8px 14px',
-                borderRadius: 'var(--r-s)',
-                background: 'transparent',
-                border: '1px solid var(--line)',
-                cursor: 'pointer',
-                fontSize: '13px',
-              }}
-            >
+          </label>
+          <div className="inline-form__actions">
+            <button type="button" className="btn btn--ghost" onClick={() => setShowAddForm(false)}>
               Cancel
             </button>
-            <button
-              type="submit"
-              style={{
-                padding: '8px 18px',
-                borderRadius: 'var(--r-s)',
-                background: 'var(--accent)',
-                color: 'var(--accent-ink)',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: 600,
-                fontSize: '13px',
-              }}
-            >
-              Save Snippet
+            <button type="submit" className="btn btn--primary" disabled={!trigger.trim() || !expansion.trim()}>
+              Save snippet
             </button>
           </div>
         </form>
       )}
 
-      <input
-        type="text"
-        placeholder="Search snippets..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{
-          padding: '8px 12px',
-          borderRadius: 'var(--r-s)',
-          border: '1px solid var(--line)',
-          background: 'var(--sand)',
-          color: 'var(--ink)',
-          fontSize: '13px',
-          width: '240px',
-          outline: 'none',
-        }}
-      />
+      <section style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {snippets.length > 0 && (
+          <div className="toolbar">
+            <span className="muted" style={{ fontSize: 'var(--text-s)' }}>
+              {snippets.length} {snippets.length === 1 ? 'snippet' : 'snippets'}
+            </span>
+            <SearchInput value={search} onChange={setSearch} placeholder="Search snippets" />
+          </div>
+        )}
 
-      {filtered.length === 0 ? (
-        <div style={{ padding: '36px', textAlign: 'center', color: 'var(--muted)', border: '1px dashed var(--line)', borderRadius: 'var(--r-m)' }}>
-          No snippets configured yet.
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {filtered.map((item) => (
-            <div
-              key={item.id}
-              style={{
-                padding: '14px 18px',
-                borderRadius: 'var(--r-m)',
-                background: 'var(--sand)',
-                border: '1px solid var(--line)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                gap: '16px',
-              }}
-            >
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                  <span style={{ fontWeight: 600, fontSize: '13px', color: 'var(--accent-ink)', background: 'var(--accent-soft)', padding: '2px 8px', borderRadius: '4px' }}>
-                    "{item.trigger}"
-                  </span>
-                  <span style={{ color: 'var(--muted)', fontSize: '13px' }}>➔</span>
+        {snippets.length === 0 ? (
+          <EmptyState icon={<TextCursorInput {...ICON_SM} />} title="No snippets yet">
+            Try one for your email signature: say “my sign-off” and get your full name, title and phone number.
+          </EmptyState>
+        ) : filtered.length === 0 ? (
+          <EmptyState icon={<TextCursorInput {...ICON_SM} />} title="No matches">
+            No snippet matches “{search}”.
+          </EmptyState>
+        ) : (
+          <div className="list">
+            {filtered.map((item) => (
+              <div key={item.id} className="row" style={{ alignItems: 'flex-start', paddingTop: 14, paddingBottom: 14 }}>
+                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <span className="snippet-trigger">“{item.trigger}”</span>
+                  <div style={{ display: 'flex', gap: 8, color: 'var(--ink-2)' }}>
+                    <CornerDownRight size={15} strokeWidth={1.75} style={{ flexShrink: 0, marginTop: 3, color: 'var(--muted)' }} />
+                    <span className="selectable" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+                      {item.expansion}
+                    </span>
+                  </div>
                 </div>
-                <div style={{ fontSize: '14px', color: 'var(--ink)', whiteSpace: 'pre-wrap', lineHeight: '1.4' }}>
-                  {item.expansion}
+                <div className="row__actions">
+                  <button
+                    className="icon-btn icon-btn--danger"
+                    onClick={() => handleDelete(item.id)}
+                    title="Delete snippet"
+                    aria-label={`Delete snippet ${item.trigger}`}
+                  >
+                    <Trash2 {...ICON_SM} />
+                  </button>
                 </div>
               </div>
-              <button
-                onClick={() => handleDelete(item.id)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'var(--muted)',
-                  fontSize: '13px',
-                  padding: '4px',
-                }}
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 };

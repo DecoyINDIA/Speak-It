@@ -9,8 +9,9 @@ This document records the exact free-tier quotas, operational limits, model iden
 | Provider | Purpose | Default Model | Free-Tier Limits | Data-Use / Privacy Terms |
 |---|---|---|---|---|
 | **Groq** | STT + LLM | STT: `whisper-large-v3-turbo`<br>LLM: `llama-3.3-70b-versatile` | • 20 RPM (requests/min)<br>• 2,000 RPD (requests/day)<br>• 7,200 audio-sec/hour (2 hrs)<br>• 28,800 audio-sec/day (8 hrs)<br>• 25 MB max upload | Groq does **not** use API customer prompts or audio for training. Retained only for transient inference. |
-| **Google Gemini** | STT + LLM Fallback | `gemini-1.5-flash` | • 15 RPM<br>• 1,500 RPD<br>• 1,000,000 TPM (tokens/min) | **Important:** On Google's un-billed free tier, prompts and audio may be reviewed by human reviewers and used to improve Google products. Disclosed in SpeakIt onboarding. |
+| **Google Gemini** | STT + LLM Fallback | `gemini-2.5-flash` | • 15 RPM<br>• 1,500 RPD<br>• 1,000,000 TPM (tokens/min) | **Important:** On Google's un-billed free tier, prompts and audio may be reviewed by human reviewers and used to improve Google products. Disclosed in SpeakIt onboarding. |
 | **Local whisper.cpp** | Offline STT | `ggml-model-whisper-small.bin` (default)<br>`ggml-model-whisper-large-v3-turbo.bin` | None (Unlimited, 100% offline) | Zero network egress. All audio is processed purely on local CPU/GPU. |
+| **Custom OpenAI-Compatible** | Optional STT/LLM | Configurable endpoint | Vendor dependent | User-chosen endpoint & privacy policy. |
 | **Local Cleanup (F23)** | Offline LLM | Ollama / LM Studio (`llama3.2:latest`) | None (Local hardware bound) | Zero network egress. |
 
 ---
@@ -39,3 +40,14 @@ Timeouts adapt dynamically to payload size to prevent premature aborts on slow u
 1. **Offline Short-Circuit:** If `net.isOnline()` is false or DNS fails, the pipeline skips cloud providers and executes offline whisper.cpp directly.
 2. **Quota / Rate-Limit (429):** The provider enters cooldown for the duration specified in the `retry-after` HTTP header (or 60 seconds default). The chain immediately proceeds to the next provider.
 3. **LLM Failure Fallback:** If cloud and local cleanup LLMs fail, the pipeline falls back to inserting the raw transcript formatted with `applySmartFormatting()`. No speech is ever lost.
+
+---
+
+## 5. Monthly Provider Audit & Verification Checklist (BG4)
+
+Conducted on the 1st of each month to verify free-tier limits, active model IDs, and API terms:
+
+| Verification Date | Groq Whisper Status | Gemini Status | Remote Defaults URL | Auditor | Status |
+|---|---|---|---|---|---|
+| 2026-11-08 | `whisper-large-v3-turbo` (Active, 20 RPM) | `gemini-2.5-flash` (Active, 15 RPM) | Active (`provider-defaults.json`) | DecoyINDIA | Passed |
+

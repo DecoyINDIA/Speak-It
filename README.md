@@ -1,24 +1,47 @@
-# SpeakIt — High-Performance Desktop Voice Writing Assistant
+# SpeakIt — Voice Typing for Windows that Sounds Like You
 
-**SpeakIt** is a fast, privacy-first, desktop-native AI voice dictation and writing assistant for Windows. It runs system-wide, transcribes speech with ultra-low latency, formats raw speech into clear, structured prose using AI, and pastes text directly into any focused application.
+**Voice typing for Windows that understands Hinglish, cleans up your speech, and works offline — free and open source.**
 
-> *SpeakIt is an independent open-source project and is not affiliated with, endorsed by, or sponsored by Wispr or the creators of Wispr Flow.*
+SpeakIt runs system-wide across any application on Windows 10 and 11. Hold <kbd>Ctrl</kbd> + <kbd>Win</kbd>, speak your thoughts, and release — clean, well-formatted text appears directly at your cursor.
+
+> *SpeakIt is an independent open-source project under the MIT License and is not affiliated with, endorsed by, or sponsored by Wispr or the creators of Wispr Flow.*
 
 ---
 
 ## Key Features
 
-- **Global Push-to-Talk & Double-Tap Hands-Free:** Trigger dictation anywhere with `Ctrl + Win` (or configurable custom hotkeys). Includes missed-key polling, Start-menu mask key (`VK 0xE8`), and 200ms chord conflict abort.
+- **Global Push-to-Talk & Double-Tap Hands-Free:** Trigger dictation anywhere with `Ctrl + Win` (or configurable custom hotkeys).
 - **Sub-Second Streaming Pipeline:** Powered by Groq's LPU inference (`whisper-large-v3-turbo` + `llama-3.3-70b-versatile`) with p50 latency under 2 seconds.
-- **Smart Formatting Engine:** Removes conversational filler words ("um", "ah"), fixes false starts, formats lists and punctuation, and preserves technical terminology without hallucinating answers.
-- **Zero-Cloud Offline Mode:** Downloadable local Whisper engine (`whisper-server.exe`) paired with local Ollama or LM Studio endpoints for 100% offline, private dictation.
-- **Native Helper v2 (`SpeakItHelper.exe`):** C# low-level hook and Win32 delayed-rendering clipboard architecture (`WM_RENDERFORMAT`) with sequence number verification (`S0`/`S1`) and zero-loss clipboard restoration.
-- **Security & Privacy Hardened:**
-  - API keys encrypted with Windows DPAPI (`safeStorage`).
-  - Strict Content Security Policy (CSP), disabled Node integration, isolated renderers.
-  - Zero telemetry by default. Rotating local-only diagnostic logs (5 × 2MB).
-  - Outbound network egress strictly whitelisted.
-- **Modern Hub & Bar Interface:** Floating status pill with 9 live audio RMS volume bars, full Hub application with Dictation History (FTS5 search), Personal Dictionary, Snippets, Writing Styles, and Settings.
+- **Understands Hinglish & Indian Accents:** Built for Indian English and Hinglish dictation (accuracy benchmarks pending).
+- **AI Disfluency Removal & Self-Corrections:** Automatically removes conversational filler words ("um", "ah"), formats lists and punctuation, and handles self-corrections ("meet on Monday no wait Tuesday" becomes "meet on Tuesday").
+- **100% Offline Capability:** Bundled local `whisper.cpp` engine. Works immediately with zero internet connection, zero API keys, and zero accounts.
+- **Privacy-First:**
+  - Free to use; works fully offline.
+  - Zero telemetry or analytics collected by default.
+  - API keys stored securely in Windows DPAPI (`safeStorage`).
+  - Automatic Password Field Shield via Windows UI Automation.
+- **Enterprise Ready:** Machine-wide policy enforcement via Windows Registry (`HKLM\Software\Policies\SpeakIt`) for mandatory offline mode, locked retention, and silent deployment (`/S`).
+
+---
+
+## Documentation & Guides
+
+- [Troubleshooting & Known Limits](docs/troubleshooting.md)
+- [Why SpeakIt Needs Input Access](docs/WHY_ACCESSIBILITY_PERMISSIONS.md)
+- [Comparison vs Windows Voice Typing (Win+H)](docs/COMPARISON_WIN_H.md)
+- [Enterprise & Group Policy Deployment](docs/ENTERPRISE_DEPLOYMENT.md)
+- [AI Providers Specification & Limits](docs/providers.md)
+- [Terms of Use](docs/terms.md) & [Privacy Policy](docs/privacy.md)
+- [Contributing Guide](CONTRIBUTING.md)
+
+---
+
+## Support & Sustainability
+
+SpeakIt is an independent open-source project that costs $0 to run. If SpeakIt saves you time every day, consider supporting continuous development:
+
+- ♥ [Sponsor on GitHub](https://github.com/sponsors/DecoyINDIA)
+- ☕ [Buy Me a Coffee](https://buymeacoffee.com/DecoyINDIA)
 
 ---
 

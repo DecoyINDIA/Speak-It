@@ -9,7 +9,9 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: windows-latest
+    # windows-latest now ships Visual Studio 2026, which npm's bundled node-gyp (11.x)
+    # cannot detect, breaking the better-sqlite3 native build. Stay on the VS 2022 image.
+    runs-on: windows-2022
 
     steps:
       - name: Checkout repository
@@ -27,17 +29,14 @@ jobs:
       - name: Step 1 - TypeScript Typecheck
         run: npm run typecheck
 
-      - name: Step 2 - Vitest Unit & Quality Suite
-        run: npm test
-
-      - name: Step 3 - Compile SpeakIt Native Helper (net48)
+      - name: Step 2 - Compile SpeakIt Native Helper (net48)
         run: powershell -NoProfile -ExecutionPolicy Bypass -File native/helper/build.ps1
 
-      - name: Step 4 - Helper Contract Tests
-        run: npx vitest run test/unit/helperClient.test.ts
+      - name: Step 3 - Vitest Unit, Helper Contract & Soak Suite
+        run: npm test
 
-      - name: Step 5 - Electron-Vite Production Build
+      - name: Step 4 - Electron-Vite Production Build
         run: npm run build
 
-      - name: Step 6 - Electron-Builder NSIS Package
+      - name: Step 5 - Electron-Builder NSIS Package
         run: npm run pack

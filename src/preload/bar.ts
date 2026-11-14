@@ -21,6 +21,7 @@ export const barApi = {
   cancel: () => ipcRenderer.send('bar:cancel'),
   stop: () => ipcRenderer.send('bar:stop'),
   retry: () => ipcRenderer.send('bar:retry'),
+  openFeedbackIssue: (reason?: string) => ipcRenderer.send('bar:open-feedback-issue', reason),
   setIgnoreMouse: (ignore: boolean) => ipcRenderer.send('bar:set-ignore-mouse', ignore),
 };
 

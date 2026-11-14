@@ -1,306 +1,229 @@
 import React, { useState } from 'react';
+import { ArrowLeft, ArrowRight, AudioLines, ExternalLink, HardDrive, Lock } from 'lucide-react';
 import { productConfig } from '../../../../product.config';
+import { Dialog, ICON_SM, Kbd, RadioOption, Switch } from '../components/ui';
 
 interface OnboardingModalProps {
   isOpen: boolean;
   onComplete: () => void;
 }
 
+type Engine = 'groq' | 'gemini' | 'offline';
+const STEPS = 4;
+const DOCS = 'https://github.com/DecoyINDIA/Speak-It/blob/main/docs';
+
 export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComplete }) => {
   const [step, setStep] = useState(1);
-  const [selectedEngine, setSelectedEngine] = useState<'groq' | 'gemini' | 'offline'>('groq');
+  const [selectedEngine, setSelectedEngine] = useState<Engine>('offline');
   const [apiKey, setApiKey] = useState('');
   const [contextAwareness, setContextAwareness] = useState(false);
   const [keepAudio, setKeepAudio] = useState(true);
   const [testText, setTestText] = useState('');
 
+  React.useEffect(() => {
+    (window as any).speakit?.setOnboardingStep?.(step);
+  }, [step]);
+
   if (!isOpen) return null;
 
   async function handleFinish() {
-    if ((window as any).speakit) {
-      if (apiKey.trim()) {
-        await (window as any).speakit.setSecret(selectedEngine, apiKey.trim());
+    const api = (window as any).speakit;
+    if (api) {
+      if (apiKey.trim() && selectedEngine !== 'offline') {
+        await api.setSecret(selectedEngine, apiKey.trim());
       }
-      await (window as any).speakit.updateSettings({
-        privacy: {
-          contextAwareness,
-          keepAudio,
-          retentionDays: 90,
+      await api.updateSettings({
+        providers: {
+          chain: selectedEngine === 'offline' ? ['offline', 'groq', 'gemini'] : [selectedEngine, 'offline'],
         },
+        privacy: { contextAwareness, keepAudio, retentionDays: 90 },
       });
+      await api.setOnboardingStep(4);
     }
     onComplete();
   }
 
+  const engineName = selectedEngine === 'groq' ? 'Groq' : 'Gemini';
+
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.65)',
-        backdropFilter: 'blur(6px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 2000,
-      }}
-    >
-      <div
-        style={{
-          width: '580px',
-          minHeight: '440px',
-          backgroundColor: 'var(--panel)',
-          borderRadius: 'var(--r-l)',
-          border: '1px solid var(--line)',
-          boxShadow: '0 24px 64px rgba(0, 0, 0, 0.3)',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          padding: '32px 36px',
-        }}
-      >
-        {/* Step 1: Welcome */}
-        {step === 1 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
-              🎙️
-            </div>
-            <h1 style={{ fontSize: '28px', fontWeight: 600, color: 'var(--ink)' }}>
-              Welcome to {productConfig.displayName}
-            </h1>
-            <p style={{ fontSize: '15px', color: 'var(--ink-2)', lineHeight: '1.5' }}>
-              Voice typing that sounds like you. Speak anywhere in Windows, and clean text appears right at your cursor.
-            </p>
-            <div style={{ padding: '14px 18px', background: 'var(--sand)', borderRadius: 'var(--r-m)', fontSize: '13px', color: 'var(--muted)' }}>
-              • <strong>100% Free forever:</strong> Bring your own free API key or run offline.<br />
-              • <strong>Private by default:</strong> Your data stays on your PC. No analytics collected.
-            </div>
-          </div>
-        )}
+    <Dialog label={`Set up ${productConfig.displayName}`} width={580}>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: 460, padding: '32px 36px 24px' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {step === 1 && (
+            <>
+              <span className="logo-mark" style={{ width: 44, height: 44, borderRadius: 12 }} aria-hidden>
+                <AudioLines size={24} strokeWidth={2.25} />
+              </span>
+              <h1 className="page-title" style={{ marginTop: 8 }}>
+                Welcome to {productConfig.displayName}
+              </h1>
+              <p style={{ color: 'var(--ink-2)', fontSize: 'var(--text-l)', lineHeight: 1.5 }}>
+                Talk in any app on Windows and clean, punctuated text appears at your cursor.
+              </p>
+              <ul className="onb-points">
+                <li>
+                  <HardDrive {...ICON_SM} />
+                  <span>
+                    <strong>Works offline.</strong> No account or API key needed to start.
+                  </span>
+                </li>
+                <li>
+                  <Lock {...ICON_SM} />
+                  <span>
+                    <strong>Private by default.</strong> Your voice and transcripts stay on this PC.
+                  </span>
+                </li>
+              </ul>
+              <p className="hint" style={{ marginTop: 'auto' }}>
+                By continuing you agree to the{' '}
+                <a href={`${DOCS}/terms.md`} target="_blank" rel="noreferrer">
+                  Terms of Use
+                </a>{' '}
+                and{' '}
+                <a href={`${DOCS}/privacy.md`} target="_blank" rel="noreferrer">
+                  Privacy Policy
+                </a>
+                .
+              </p>
+            </>
+          )}
 
-        {/* Step 2: Engine Selection */}
-        {step === 2 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <h2 style={{ fontSize: '22px', fontWeight: 600 }}>Choose Your Speech Engine</h2>
-            <p style={{ fontSize: '13px', color: 'var(--muted)' }}>
-              Select where your audio is transcribed. You can change this anytime in Settings.
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <EngineChoiceCard
-                selected={selectedEngine === 'groq'}
-                title="Groq Cloud (Recommended)"
-                badge="Fastest · ~500ms"
-                desc="Free Whisper Large-v3-Turbo with incredible speed. Prompts are never used for training."
-                onClick={() => setSelectedEngine('groq')}
-              />
-              <EngineChoiceCard
-                selected={selectedEngine === 'gemini'}
-                title="Google Gemini"
-                badge="Multimodal"
-                desc="Free-tier audio transcription. Note: Google un-billed tier data may undergo human review."
-                onClick={() => setSelectedEngine('gemini')}
-              />
-              <EngineChoiceCard
-                selected={selectedEngine === 'offline'}
-                title="100% Offline (whisper.cpp)"
-                badge="Zero Cloud"
-                desc="Runs entirely on your local machine with no internet connection required."
-                onClick={() => setSelectedEngine('offline')}
-              />
-            </div>
-
-            {selectedEngine !== 'offline' && (
-              <div style={{ marginTop: '6px' }}>
-                <input
-                  type="password"
-                  placeholder={`Enter your ${selectedEngine === 'groq' ? 'Groq' : 'Gemini'} API key`}
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    borderRadius: 'var(--r-s)',
-                    border: '1px solid var(--line)',
-                    background: 'var(--sand)',
-                    color: 'var(--ink)',
-                    fontSize: '13px',
-                  }}
-                />
+          {step === 2 && (
+            <>
+              <div>
+                <h2 className="page-title" style={{ fontSize: 'var(--text-xl)' }}>Choose a speech engine</h2>
+                <p className="page-sub">Start offline now. You can add a cloud engine any time in Settings.</p>
               </div>
-            )}
-          </div>
-        )}
+              <div role="radiogroup" aria-label="Speech engine" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <RadioOption
+                  checked={selectedEngine === 'offline'}
+                  onSelect={() => setSelectedEngine('offline')}
+                  title="Offline"
+                  badge={<span className="badge badge--accent">Recommended</span>}
+                >
+                  Runs on this PC. No internet, keys or account.
+                </RadioOption>
+                <RadioOption
+                  checked={selectedEngine === 'groq'}
+                  onSelect={() => setSelectedEngine('groq')}
+                  title="Groq"
+                  badge={<span className="badge">Fastest</span>}
+                >
+                  Free cloud transcription in about half a second. Needs a free API key.
+                </RadioOption>
+                <RadioOption
+                  checked={selectedEngine === 'gemini'}
+                  onSelect={() => setSelectedEngine('gemini')}
+                  title="Google Gemini"
+                >
+                  Free tier available. Google may review free-tier data.
+                </RadioOption>
+              </div>
 
-        {/* Step 3: Privacy Choices */}
-        {step === 3 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h2 style={{ fontSize: '22px', fontWeight: 600 }}>Privacy Settings</h2>
-            <p style={{ fontSize: '13px', color: 'var(--muted)' }}>
-              Choose your data preferences. You are always in control.
-            </p>
+              {selectedEngine !== 'offline' && (
+                <label className="field" style={{ marginTop: 4 }}>
+                  <span style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span className="label">{engineName} API key</span>
+                    <a
+                      href={selectedEngine === 'groq' ? 'https://console.groq.com/keys' : 'https://aistudio.google.com/app/apikey'}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ fontSize: 'var(--text-xs)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                    >
+                      Get a free key <ExternalLink size={12} strokeWidth={2} />
+                    </a>
+                  </span>
+                  <input
+                    className="input"
+                    type="password"
+                    placeholder={selectedEngine === 'groq' ? 'gsk_…' : 'AIza…'}
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                  />
+                  <span className="hint">No key yet? Leave this empty and SpeakIt will use offline mode.</span>
+                </label>
+              )}
+            </>
+          )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
-              <div style={{ padding: '14px 18px', borderRadius: 'var(--r-m)', background: 'var(--sand)', border: '1px solid var(--line)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {step === 3 && (
+            <>
+              <div>
+                <h2 className="page-title" style={{ fontSize: 'var(--text-xl)' }}>Privacy choices</h2>
+                <p className="page-sub">You can change these later in Settings.</p>
+              </div>
+              <div className="settings-list">
+                <div className="setting-row">
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: '14px' }}>Context Awareness (Default: Off)</div>
-                    <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '2px', maxWidth: '400px' }}>
-                      Sends active app name and up to 300 characters before cursor to the AI for smarter capitalization and punctuation. Never activates in password fields.
+                    <div className="setting-row__title">Use app context</div>
+                    <div className="setting-row__desc">
+                      Sends the app name and up to 300 characters before your cursor to the AI for better punctuation.
+                      Never used in password fields.
                     </div>
                   </div>
-                  <input
-                    type="checkbox"
-                    checked={contextAwareness}
-                    onChange={(e) => setContextAwareness(e.target.checked)}
-                  />
+                  <Switch label="Use app context" checked={contextAwareness} onChange={setContextAwareness} />
                 </div>
-              </div>
-
-              <div style={{ padding: '14px 18px', borderRadius: 'var(--r-m)', background: 'var(--sand)', border: '1px solid var(--line)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="setting-row">
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: '14px' }}>Keep Last 20 Audio Recordings</div>
-                    <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '2px', maxWidth: '400px' }}>
-                      Allows you to replay or retry dictations if a network request fails. Audio is stored purely locally.
+                    <div className="setting-row__title">Keep recent recordings</div>
+                    <div className="setting-row__desc">
+                      Saves your last 20 recordings on this PC so you can retry if a request fails.
                     </div>
                   </div>
-                  <input
-                    type="checkbox"
-                    checked={keepAudio}
-                    onChange={(e) => setKeepAudio(e.target.checked)}
-                  />
+                  <Switch label="Keep recent recordings" checked={keepAudio} onChange={setKeepAudio} />
                 </div>
               </div>
-            </div>
-          </div>
-        )}
+            </>
+          )}
 
-        {/* Step 4: First Dictation Practice */}
-        {step === 4 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h2 style={{ fontSize: '22px', fontWeight: 600 }}>You're Ready to Dictate!</h2>
-            <p style={{ fontSize: '14px', color: 'var(--ink-2)' }}>
-              Hold <kbd style={{ padding: '3px 8px', background: 'var(--sand-2)', borderRadius: '4px', fontWeight: 600 }}>Ctrl + Win</kbd>, speak what you want to type, and release.
-            </p>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: 'var(--muted)', marginBottom: '6px' }}>
-                Practice Box:
-              </label>
+          {step === 4 && (
+            <>
+              <div>
+                <h2 className="page-title" style={{ fontSize: 'var(--text-xl)' }}>Try it</h2>
+                <p className="page-sub">
+                  Click the box, hold <Kbd keys={['Ctrl', 'Win']} />, say a sentence, then let go.
+                </p>
+              </div>
               <textarea
-                rows={4}
-                placeholder="Click here, hold Ctrl + Win, and dictate your first sentence..."
+                className="textarea"
+                rows={5}
+                aria-label="Practice box"
+                placeholder="Your words will appear here"
                 value={testText}
                 onChange={(e) => setTestText(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px 14px',
-                  borderRadius: 'var(--r-m)',
-                  border: '1px solid var(--line)',
-                  background: 'var(--sand)',
-                  color: 'var(--ink)',
-                  fontSize: '14px',
-                  fontFamily: 'inherit',
-                  resize: 'none',
-                }}
+                style={{ resize: 'none', fontSize: 'var(--text-l)' }}
               />
-            </div>
-          </div>
-        )}
+              {selectedEngine === 'offline' && (
+                <p className="hint">Running offline. For faster results, add a free Groq key in Settings later.</p>
+              )}
+            </>
+          )}
+        </div>
 
-        {/* Bottom Step Actions */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px' }}>
-          <div style={{ display: 'flex', gap: '6px' }}>
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  background: step === i ? 'var(--accent)' : 'var(--line)',
-                }}
-              />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 28 }}>
+          <div className="steps" aria-label={`Step ${step} of ${STEPS}`}>
+            {Array.from({ length: STEPS }, (_, i) => (
+              <span key={i} data-active={step === i + 1} data-done={step > i + 1} />
             ))}
           </div>
-
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: 8 }}>
             {step > 1 && (
-              <button
-                onClick={() => setStep(step - 1)}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: 'var(--r-s)',
-                  background: 'transparent',
-                  border: '1px solid var(--line)',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                }}
-              >
-                Back
+              <button className="btn btn--ghost" onClick={() => setStep(step - 1)}>
+                <ArrowLeft size={15} strokeWidth={2} /> Back
               </button>
             )}
-            {step < 4 ? (
-              <button
-                onClick={() => setStep(step + 1)}
-                style={{
-                  padding: '8px 20px',
-                  borderRadius: 'var(--r-s)',
-                  background: 'var(--ink)',
-                  color: 'var(--panel)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontWeight: 600,
-                  fontSize: '13px',
-                }}
-              >
-                Continue →
+            {step < STEPS ? (
+              <button className="btn btn--primary" onClick={() => setStep(step + 1)}>
+                {step === 1 ? 'Get started' : 'Continue'} <ArrowRight size={15} strokeWidth={2} />
               </button>
             ) : (
-              <button
-                onClick={handleFinish}
-                style={{
-                  padding: '8px 24px',
-                  borderRadius: 'var(--r-s)',
-                  background: 'var(--accent)',
-                  color: 'var(--accent-ink)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontWeight: 600,
-                  fontSize: '13px',
-                }}
-              >
-                Finish Setup
+              <button className="btn btn--primary" onClick={handleFinish}>
+                Finish setup
               </button>
             )}
           </div>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 };
-
-function EngineChoiceCard({ title, badge, desc, selected, onClick }: { title: string; badge: string; desc: string; selected: boolean; onClick: () => void }) {
-  return (
-    <div
-      onClick={onClick}
-      style={{
-        padding: '12px 16px',
-        borderRadius: 'var(--r-m)',
-        background: selected ? 'var(--panel)' : 'var(--sand)',
-        border: selected ? '2px solid var(--accent)' : '1px solid var(--line)',
-        cursor: 'pointer',
-        boxShadow: selected ? '0 2px 8px rgba(240, 161, 46, 0.15)' : 'none',
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--ink)' }}>{title}</span>
-        <span style={{ fontSize: '11px', color: 'var(--accent-ink)', background: 'var(--accent-soft)', padding: '2px 6px', borderRadius: '4px', fontWeight: 500 }}>
-          {badge}
-        </span>
-      </div>
-      <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>{desc}</div>
-    </div>
-  );
-}

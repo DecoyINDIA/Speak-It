@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TopBar } from './components/TopBar';
 import { SidebarRail, NavPage } from './components/SidebarRail';
 import { HomePage } from './pages/HomePage';
@@ -9,48 +9,70 @@ import { HelpPage } from './pages/HelpPage';
 import { SettingsModal } from './pages/SettingsModal';
 import { OnboardingModal } from './pages/OnboardingModal';
 
+type ThemePref = 'light' | 'dark' | 'system';
+
+function resolveTheme(pref: ThemePref): 'light' | 'dark' {
+  if (pref === 'system') {
+    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  }
+  return pref;
+}
+
+function applyTheme(theme: 'light' | 'dark') {
+  document.documentElement.setAttribute('data-theme', theme);
+}
+
 export default function App(): React.JSX.Element {
   const [activePage, setActivePage] = useState<NavPage>('home');
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
 
-  function toggleTheme() {
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
+
+  // Pick up the saved theme preference (dark is the default look).
+  useEffect(() => {
+    (async () => {
+      const s = await (window as any).speakit?.getSettings?.();
+      const pref: ThemePref | undefined = s?.general?.theme;
+      if (pref) setTheme(resolveTheme(pref));
+    })();
+  }, []);
+
+  async function toggleTheme() {
     const next = theme === 'light' ? 'dark' : 'light';
     setTheme(next);
-    document.documentElement.setAttribute('data-theme', next);
+    const api = (window as any).speakit;
+    if (api?.getSettings && api?.updateSettings) {
+      const s = await api.getSettings();
+      if (s?.general) await api.updateSettings({ general: { ...s.general, theme: next } });
+    }
+  }
+
+  function handleSettingsClose() {
+    setIsSettingsOpen(false);
+    // The settings dialog can change the theme preference.
+    (async () => {
+      const s = await (window as any).speakit?.getSettings?.();
+      if (s?.general?.theme) setTheme(resolveTheme(s.general.theme));
+    })();
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--frame)' }}>
-      {/* Top Application Bar */}
-      <TopBar
-        theme={theme}
-        onToggleTheme={toggleTheme}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-      />
+    <div className="shell">
+      <TopBar theme={theme} onToggleTheme={toggleTheme} />
 
-      {/* Main Content Area */}
-      <div style={{ display: 'flex', flex: 1, padding: '0 12px 12px 12px', gap: '12px', overflow: 'hidden' }}>
-        {/* Left Icon Rail */}
+      <div className="body">
         <SidebarRail
           activePage={activePage}
-          onSelectPage={(page) => setActivePage(page)}
+          onSelectPage={setActivePage}
           onOpenSettings={() => setIsSettingsOpen(true)}
         />
 
-        {/* Content Panel */}
-        <main
-          style={{
-            flex: 1,
-            backgroundColor: 'var(--panel)',
-            borderRadius: 'var(--r-l)',
-            border: '1px solid var(--line)',
-            padding: '24px 32px',
-            overflowY: 'auto',
-          }}
-        >
-          {activePage === 'home' && <HomePage onNavigate={(p) => setActivePage(p)} />}
+        <main className="panel">
+          {activePage === 'home' && <HomePage onNavigate={setActivePage} />}
           {activePage === 'dictionary' && <DictionaryPage />}
           {activePage === 'snippets' && <SnippetsPage />}
           {activePage === 'style' && <StylePage />}
@@ -58,16 +80,8 @@ export default function App(): React.JSX.Element {
         </main>
       </div>
 
-      {/* Modals */}
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-      />
-
-      <OnboardingModal
-        isOpen={isOnboardingOpen}
-        onComplete={() => setIsOnboardingOpen(false)}
-      />
+      <SettingsModal isOpen={isSettingsOpen} onClose={handleSettingsClose} />
+      <OnboardingModal isOpen={isOnboardingOpen} onComplete={() => setIsOnboardingOpen(false)} />
     </div>
   );
 }
