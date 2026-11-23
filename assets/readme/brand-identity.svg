@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" width="100%" height="340" fill="none">
+  <defs>
+    <radialGradient id="brand-radial" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00F58C" stop-opacity="0.25"/>
+      <stop offset="50%" stop-color="#0E2319" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#0A0D0B" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="shield-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F58C"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+
+    <linearGradient id="orbit-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00F58C" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#38BDF8" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#00F58C" stop-opacity="0"/>
+    </linearGradient>
+
+    <filter id="brand-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <style>
+      .font-sans { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Inter', Roboto, sans-serif; }
+      .font-mono { font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace; }
+
+      .radar-ring-1 {
+        animation: radarPulse 3.5s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+      }
+      .radar-ring-2 {
+        animation: radarPulse 3.5s cubic-bezier(0.2, 0.8, 0.2, 1) infinite 1.2s;
+      }
+      .radar-ring-3 {
+        animation: radarPulse 3.5s cubic-bezier(0.2, 0.8, 0.2, 1) infinite 2.4s;
+      }
+      .orbit-spinner {
+        transform-origin: 220px 170px;
+        animation: rotateOrbit 12s linear infinite;
+      }
+      .orbit-reverse {
+        transform-origin: 220px 170px;
+        animation: rotateOrbitRev 18s linear infinite;
+      }
+      .sound-wave-draw {
+        stroke-dasharray: 120;
+        animation: strokeDraw 3s ease-in-out infinite alternate;
+      }
+      .core-pulse {
+        animation: coreBreath 2.4s ease-in-out infinite;
+      }
+
+      @keyframes radarPulse {
+        0% { r: 40; opacity: 0.8; stroke-width: 2.5; }
+        100% { r: 130; opacity: 0; stroke-width: 0.5; }
+      }
+      @keyframes rotateOrbit {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      @keyframes rotateOrbitRev {
+        0% { transform: rotate(360deg); }
+        100% { transform: rotate(0deg); }
+      }
+      @keyframes strokeDraw {
+        0% { stroke-dashoffset: 60; opacity: 0.4; }
+        100% { stroke-dashoffset: 0; opacity: 1; }
+      }
+      @keyframes coreBreath {
+        0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px #00F58C); }
+        50% { transform: scale(1.08); filter: drop-shadow(0 0 16px #00F58C); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .radar-ring-1, .radar-ring-2, .radar-ring-3, .orbit-spinner, .orbit-reverse, .sound-wave-draw, .core-pulse {
+          animation: none !important;
+        }
+      }
+    </style>
+  </defs>
+
+  <!-- Background Base Panel -->
+  <rect width="800" height="340" rx="16" fill="#090C0A"/>
+  <rect width="800" height="340" rx="16" fill="url(#brand-radial)"/>
+  <rect x="0.5" y="0.5" width="799" height="339" rx="15.5" stroke="#1D2620" stroke-width="1"/>
+
+  <!-- Left: Animated Brand Emblem Metaphor -->
+  <g id="brand-emblem">
+    <!-- Expanding Radar Waves -->
+    <circle cx="220" cy="170" r="40" fill="none" stroke="#00F58C" class="radar-ring-1"/>
+    <circle cx="220" cy="170" r="40" fill="none" stroke="#00F58C" class="radar-ring-2"/>
+    <circle cx="220" cy="170" r="40" fill="none" stroke="#00F58C" class="radar-ring-3"/>
+
+    <!-- Technical Calibration Target Crosshairs -->
+    <line x1="220" y1="40" x2="220" y2="70" stroke="#25352A" stroke-width="1.5"/>
+    <line x1="220" y1="270" x2="220" y2="300" stroke="#25352A" stroke-width="1.5"/>
+    <line x1="90" y1="170" x2="120" y2="170" stroke="#25352A" stroke-width="1.5"/>
+    <line x1="320" y1="170" x2="350" y2="170" stroke="#25352A" stroke-width="1.5"/>
+
+    <!-- Outer Orbital Ring -->
+    <circle cx="220" cy="170" r="95" fill="none" stroke="#1C2720" stroke-width="1" stroke-dasharray="4 6"/>
+    
+    <!-- Rotating Node Track -->
+    <g class="orbit-spinner">
+      <circle cx="220" cy="75" r="4.5" fill="#00F58C" filter="url(#brand-glow)"/>
+      <circle cx="220" cy="265" r="3" fill="#38BDF8"/>
+      <line x1="220" y1="75" x2="220" y2="90" stroke="#00F58C" stroke-width="1"/>
+    </g>
+
+    <g class="orbit-reverse">
+      <circle cx="145" cy="170" r="3.5" fill="#00F58C" opacity="0.7"/>
+      <circle cx="295" cy="170" r="3" fill="#38BDF8" opacity="0.6"/>
+    </g>
+
+    <!-- Center Mic & Sound Energy Capsule -->
+    <g transform="translate(220, 170)">
+      <!-- Soft Radial Core Backing -->
+      <circle cx="0" cy="0" r="36" fill="#101814" stroke="#283B2F" stroke-width="1.5"/>
+      
+      <!-- Mic Capsule Outer Frame -->
+      <rect x="-14" y="-22" width="28" height="34" rx="14" fill="#141E18" stroke="#00F58C" stroke-width="2.5" class="core-pulse"/>
+      
+      <!-- Voice Wave Slits inside Mic -->
+      <line x1="-7" y1="-12" x2="7" y2="-12" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="-9" y1="-6" x2="9" y2="-6" stroke="#00F58C" stroke-width="2" stroke-linecap="round"/>
+      <line x1="-7" y1="0" x2="7" y2="0" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+
+      <!-- Mic Stand Arc -->
+      <path d="M -22 -4 C -22 18 22 18 22 -4" fill="none" stroke="#00F58C" stroke-width="2.5" stroke-linecap="round" class="sound-wave-draw"/>
+      <line x1="0" y1="18" x2="0" y2="28" stroke="#00F58C" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="-12" y1="28" x2="12" y2="28" stroke="#00F58C" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- Right: Identity Typography & Specs -->
+  <g transform="translate(420, 75)">
+    <!-- Category Badge -->
+    <rect width="170" height="22" rx="6" fill="#121A15" stroke="#223328" stroke-width="1"/>
+    <text x="85" y="15" text-anchor="middle" fill="#00F58C" font-size="10" font-weight="700" letter-spacing="1.5" class="font-mono">
+      BRAND SPECIFICATION
+    </text>
+
+    <!-- Brand Wordmark -->
+    <text x="0" y="68" fill="#FFFFFF" font-size="44" font-weight="900" letter-spacing="-1.2" class="font-sans">
+      Speak<tspan fill="#00F58C">It</tspan>
+    </text>
+    <text x="0" y="96" fill="#9CA3AF" font-size="14.5" font-weight="500" class="font-sans">
+      The Sovereign Windows Voice Engine
+    </text>
+
+    <!-- Technical Specification Attributes Grid -->
+    <g transform="translate(0, 130)">
+      <!-- Spec 1 -->
+      <g transform="translate(0, 0)">
+        <text x="0" y="0" fill="#6B7280" font-size="10.5" font-weight="600" class="font-mono">COLOR SYSTEM</text>
+        <rect x="0" y="8" width="14" height="14" rx="3" fill="#00F58C"/>
+        <text x="22" y="20" fill="#E5E7EB" font-size="12" font-weight="600" class="font-mono">#00F58C (Volt)</text>
+      </g>
+
+      <!-- Spec 2 -->
+      <g transform="translate(170, 0)">
+        <text x="0" y="0" fill="#6B7280" font-size="10.5" font-weight="600" class="font-mono">CANVAS POLARITY</text>
+        <rect x="0" y="8" width="14" height="14" rx="3" fill="#090C0A" stroke="#2A3830" stroke-width="1"/>
+        <text x="22" y="20" fill="#E5E7EB" font-size="12" font-weight="600" class="font-mono">Charcoal Noir</text>
+      </g>
+
+      <!-- Spec 3 -->
+      <g transform="translate(0, 48)">
+        <text x="0" y="0" fill="#6B7280" font-size="10.5" font-weight="600" class="font-mono">AUDIO CODEC</text>
+        <text x="0" y="20" fill="#38BDF8" font-size="12" font-weight="600" class="font-mono">Opus in WebM (32 kbps)</text>
+      </g>
+
+      <!-- Spec 4 -->
+      <g transform="translate(170, 48)">
+        <text x="0" y="0" fill="#6B7280" font-size="10.5" font-weight="600" class="font-mono">RUNTIME TARGET</text>
+        <text x="0" y="20" fill="#38BDF8" font-size="12" font-weight="600" class="font-mono">Windows 10 / 11 64-bit</text>
+      </g>
+    </g>
+  </g>
+</svg>

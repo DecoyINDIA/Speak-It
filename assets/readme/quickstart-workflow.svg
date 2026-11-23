@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 320" width="100%" height="320" fill="none">
+  <defs>
+    <radialGradient id="term-glow" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#00F58C" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#080A09" stop-opacity="0"/>
+    </radialGradient>
+
+    <style>
+      .font-sans { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Inter', Roboto, sans-serif; }
+      .font-mono { font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace; }
+
+      .term-cursor {
+        animation: cursorBlink 1s step-end infinite;
+      }
+      .step-active {
+        animation: stepPulse 2.5s ease-in-out infinite;
+      }
+
+      @keyframes cursorBlink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+      }
+      @keyframes stepPulse {
+        0%, 100% { stroke: #00F58C; }
+        50% { stroke: #38BDF8; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .term-cursor, .step-active {
+          animation: none !important;
+          opacity: 1 !important;
+        }
+      }
+    </style>
+  </defs>
+
+  <!-- Frame -->
+  <rect width="920" height="320" rx="14" fill="#080A09"/>
+  <rect width="920" height="320" rx="14" fill="url(#term-glow)"/>
+  <rect x="0.5" y="0.5" width="919" height="319" rx="13.5" stroke="#1D2821" stroke-width="1"/>
+
+  <!-- Terminal Titlebar -->
+  <rect width="920" height="36" rx="14" fill="#101713"/>
+  <path d="M 0 35 L 920 35" stroke="#1D2821" stroke-width="1"/>
+  
+  <g transform="translate(18, 12)">
+    <circle cx="6" cy="6" r="4.5" fill="#EF4444"/>
+    <circle cx="22" cy="6" r="4.5" fill="#F59E0B"/>
+    <circle cx="38" cy="6" r="4.5" fill="#10B981"/>
+    <text x="60" y="10" fill="#9CA3AF" font-size="11" font-weight="600" class="font-mono">
+      PowerShell 7.4 // SpeakIt Quickstart &amp; Build Runtime
+    </text>
+  </g>
+
+  <!-- Content 3-Step Flow -->
+  <g transform="translate(30, 60)">
+    
+    <!-- Step 1 -->
+    <g transform="translate(0, 0)">
+      <rect width="265" height="230" rx="8" fill="#0E1410" stroke="#1D2920" stroke-width="1"/>
+      <g transform="translate(16, 16)">
+        <rect width="70" height="20" rx="4" fill="#16241C"/>
+        <text x="35" y="14" text-anchor="middle" fill="#00F58C" font-size="10" font-weight="700" class="font-mono">STEP 01</text>
+        <text x="0" y="44" fill="#FFFFFF" font-size="14" font-weight="700" class="font-sans">Clone &amp; Install</text>
+        <text x="0" y="62" fill="#6B7280" font-size="11" class="font-mono">Dependencies setup</text>
+        
+        <rect x="0" y="80" width="233" height="95" rx="6" fill="#131B15" stroke="#202F24" stroke-width="1"/>
+        <g transform="translate(10, 20)">
+          <text x="0" y="0" fill="#6B7280" font-size="10.5" class="font-mono"># Clone repository</text>
+          <text x="0" y="18" fill="#E5E7EB" font-size="10.5" class="font-mono">git clone .../speakit</text>
+          <text x="0" y="38" fill="#6B7280" font-size="10.5" class="font-mono"># Install packages</text>
+          <text x="0" y="56" fill="#00F58C" font-size="10.5" class="font-mono">npm install</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- Step 2 -->
+    <g transform="translate(295, 0)">
+      <rect width="265" height="230" rx="8" fill="#0E1410" stroke="#1D2920" stroke-width="1"/>
+      <g transform="translate(16, 16)">
+        <rect width="70" height="20" rx="4" fill="#16241C"/>
+        <text x="35" y="14" text-anchor="middle" fill="#00F58C" font-size="10" font-weight="700" class="font-mono">STEP 02</text>
+        <text x="0" y="44" fill="#FFFFFF" font-size="14" font-weight="700" class="font-sans">Build Native Helper</text>
+        <text x="0" y="62" fill="#6B7280" font-size="11" class="font-mono">C# Win32 hook (.NET 4.8)</text>
+        
+        <rect x="0" y="80" width="233" height="95" rx="6" fill="#131B15" stroke="#202F24" stroke-width="1"/>
+        <g transform="translate(10, 20)">
+          <text x="0" y="0" fill="#6B7280" font-size="10.5" class="font-mono"># Build C# Helper exe</text>
+          <text x="0" y="18" fill="#38BDF8" font-size="10" class="font-mono">dotnet build \</text>
+          <text x="0" y="34" fill="#38BDF8" font-size="10" class="font-mono">  SpeakItHelper.csproj</text>
+          <text x="0" y="56" fill="#00F58C" font-size="10.5" class="font-mono">✓ Output: Helper.exe</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- Step 3 -->
+    <g transform="translate(590, 0)">
+      <rect width="270" height="230" rx="8" fill="#0E1410" stroke="#00F58C" stroke-width="1.2" class="step-active"/>
+      <g transform="translate(16, 16)">
+        <rect width="70" height="20" rx="4" fill="#16241C"/>
+        <text x="35" y="14" text-anchor="middle" fill="#00F58C" font-size="10" font-weight="700" class="font-mono">STEP 03</text>
+        <text x="0" y="44" fill="#FFFFFF" font-size="14" font-weight="700" class="font-sans">Launch Dev Server</text>
+        <text x="0" y="62" fill="#00F58C" font-size="11" class="font-mono">Armed and ready</text>
+        
+        <rect x="0" y="80" width="238" height="95" rx="6" fill="#131B15" stroke="#202F24" stroke-width="1"/>
+        <g transform="translate(10, 20)">
+          <text x="0" y="0" fill="#6B7280" font-size="10.5" class="font-mono"># Start electron + Vite</text>
+          <text x="0" y="18" fill="#00F58C" font-size="10.5" class="font-mono">npm run dev</text>
+          <text x="0" y="40" fill="#E5E7EB" font-size="10" class="font-mono">Tray ready • Hotkey: Ctrl+Win</text>
+          <rect x="0" y="54" width="8" height="13" fill="#00F58C" class="term-cursor"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

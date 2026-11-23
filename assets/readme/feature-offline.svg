@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="100%" height="420" fill="none">
+  <defs>
+    <radialGradient id="off-glow" cx="30%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#00F58C" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#090C0A" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="chip-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14221A"/>
+      <stop offset="100%" stop-color="#0C140F"/>
+    </linearGradient>
+
+    <filter id="off-filter" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <style>
+      .font-sans { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Inter', Roboto, sans-serif; }
+      .font-mono { font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace; }
+
+      .bus-signal {
+        stroke-dasharray: 8 12;
+        animation: busFlow 3s linear infinite;
+      }
+      .core-indicator {
+        animation: corePulse 1.8s ease-in-out infinite alternate;
+      }
+      .shield-pulse {
+        animation: shieldGlow 3s ease-in-out infinite;
+      }
+
+      @keyframes busFlow {
+        0% { stroke-dashoffset: 40; }
+        100% { stroke-dashoffset: 0; }
+      }
+      @keyframes corePulse {
+        0% { fill: #00F58C; opacity: 0.6; }
+        100% { fill: #38BDF8; opacity: 1; }
+      }
+      @keyframes shieldGlow {
+        0%, 100% { filter: drop-shadow(0 0 2px #00F58C); }
+        50% { filter: drop-shadow(0 0 10px #00F58C); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .bus-signal, .core-indicator, .shield-pulse {
+          animation: none !important;
+        }
+      }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="420" rx="16" fill="#090C0A"/>
+  <rect width="800" height="420" rx="16" fill="url(#off-glow)"/>
+  <rect x="0.5" y="0.5" width="799" height="419" rx="15.5" stroke="#1D2721" stroke-width="1"/>
+
+  <!-- Header -->
+  <g transform="translate(36, 32)">
+    <rect width="180" height="24" rx="12" fill="#111B15" stroke="#1E3326" stroke-width="1"/>
+    <text x="90" y="16" text-anchor="middle" fill="#00F58C" font-size="10.5" font-weight="700" letter-spacing="1.5" class="font-mono">
+      FEATURE 03 // AIR-GAPPED
+    </text>
+
+    <text x="0" y="54" fill="#FFFFFF" font-size="22" font-weight="800" class="font-sans">
+      100% Offline whisper.cpp Engine
+    </text>
+    <text x="0" y="74" fill="#9CA3AF" font-size="13" class="font-sans">
+      High-performance C++ inference runs directly on your local CPU. Zero internet connection, zero API keys.
+    </text>
+  </g>
+
+  <!-- Left: Silicon Processor & Air-Gap Schematic -->
+  <g transform="translate(36, 125)">
+    <!-- Circuit Board Grid Area -->
+    <rect width="280" height="260" rx="10" fill="#0E1411" stroke="#1C2720" stroke-width="1"/>
+    
+    <!-- Motherboard Circuit Traces -->
+    <path d="M 30 50 L 80 50 L 90 90" stroke="#1E3024" stroke-width="1.5" fill="none"/>
+    <path d="M 250 50 L 200 50 L 190 90" stroke="#1E3024" stroke-width="1.5" fill="none"/>
+    <path d="M 30 210 L 80 210 L 90 170" stroke="#1E3024" stroke-width="1.5" fill="none"/>
+    <path d="M 250 210 L 200 210 L 190 170" stroke="#1E3024" stroke-width="1.5" fill="none"/>
+
+    <!-- Animated Data Bus Lines -->
+    <line x1="30" y1="130" x2="80" y2="130" stroke="#00F58C" stroke-width="2" class="bus-signal"/>
+    <line x1="200" y1="130" x2="250" y2="130" stroke="#38BDF8" stroke-width="2" class="bus-signal"/>
+
+    <!-- Central Silicon Chip: whisper.cpp -->
+    <g transform="translate(80, 75)">
+      <rect width="120" height="110" rx="10" fill="url(#chip-grad)" stroke="#00F58C" stroke-width="2" filter="url(#off-filter)"/>
+      
+      <!-- CPU Pins Top & Bottom -->
+      <line x1="20" y1="-5" x2="20" y2="0" stroke="#00F58C" stroke-width="2"/>
+      <line x1="40" y1="-5" x2="40" y2="0" stroke="#00F58C" stroke-width="2"/>
+      <line x1="60" y1="-5" x2="60" y2="0" stroke="#00F58C" stroke-width="2"/>
+      <line x1="80" y1="-5" x2="80" y2="0" stroke="#00F58C" stroke-width="2"/>
+      <line x1="100" y1="-5" x2="100" y2="0" stroke="#00F58C" stroke-width="2"/>
+
+      <line x1="20" y1="110" x2="20" y2="115" stroke="#00F58C" stroke-width="2"/>
+      <line x1="40" y1="110" x2="40" y2="115" stroke="#00F58C" stroke-width="2"/>
+      <line x1="60" y1="110" x2="60" y2="115" stroke="#00F58C" stroke-width="2"/>
+      <line x1="80" y1="110" x2="80" y2="115" stroke="#00F58C" stroke-width="2"/>
+      <line x1="100" y1="110" x2="100" y2="115" stroke="#00F58C" stroke-width="2"/>
+
+      <text x="60" y="34" text-anchor="middle" fill="#00F58C" font-size="11" font-weight="800" class="font-mono">whisper.cpp</text>
+      <text x="60" y="52" text-anchor="middle" fill="#FFFFFF" font-size="12" font-weight="700" class="font-sans">LOCAL CORE</text>
+      <text x="60" y="70" text-anchor="middle" fill="#9CA3AF" font-size="9.5" class="font-mono">ggml-small.bin</text>
+
+      <!-- 4 Core Activity Dots -->
+      <circle cx="35" cy="90" r="4" fill="#00F58C" class="core-indicator"/>
+      <circle cx="52" cy="90" r="4" fill="#00F58C" class="core-indicator"/>
+      <circle cx="68" cy="90" r="4" fill="#38BDF8" class="core-indicator"/>
+      <circle cx="85" cy="90" r="4" fill="#38BDF8" class="core-indicator"/>
+    </g>
+
+    <!-- Bottom Shield Badge -->
+    <g transform="translate(30, 215)">
+      <rect width="220" height="30" rx="6" fill="#131F17" stroke="#223829" stroke-width="1"/>
+      <circle cx="16" cy="15" r="4" fill="#00F58C"/>
+      <text x="28" y="19" fill="#E5E7EB" font-size="10.5" font-weight="700" class="font-mono">
+        AIR-GAPPED EGRESS: 0.0 KB/s
+      </text>
+    </g>
+  </g>
+
+  <!-- Right: Real Hardware Benchmark Matrix (From docs/OFFLINE_BENCHMARKS.md) -->
+  <g transform="translate(336, 125)">
+    <rect width="428" height="260" rx="10" fill="#101512" stroke="#1B251F" stroke-width="1"/>
+    
+    <g transform="translate(20, 20)">
+      <text x="0" y="0" fill="#6B7280" font-size="11" font-weight="700" class="font-mono">OFFLINE HARDWARE BENCHMARKS (10s AUDIO)</text>
+      
+      <!-- Tier 1 -->
+      <g transform="translate(0, 20)">
+        <rect width="388" height="52" rx="6" fill="#141C16" stroke="#223025" stroke-width="1"/>
+        <text x="14" y="20" fill="#FFFFFF" font-size="12.5" font-weight="700" class="font-sans">Tier 1: Constrained / Budget Laptop</text>
+        <text x="14" y="38" fill="#9CA3AF" font-size="11" class="font-mono">Intel i3-1115G4 (2 Cores / 8 GB RAM)</text>
+        <text x="320" y="32" text-anchor="middle" fill="#00F58C" font-size="15" font-weight="800" class="font-mono">1.1 s</text>
+        <text x="368" y="32" fill="#6B7280" font-size="10" class="font-mono">tiny</text>
+      </g>
+
+      <!-- Tier 2 -->
+      <g transform="translate(0, 80)">
+        <rect width="388" height="52" rx="6" fill="#141C16" stroke="#00F58C" stroke-width="1.2"/>
+        <text x="14" y="20" fill="#FFFFFF" font-size="12.5" font-weight="700" class="font-sans">Tier 2: Mainstream Dev PC (Default)</text>
+        <text x="14" y="38" fill="#9CA3AF" font-size="11" class="font-mono">AMD Ryzen 5 5600U (6 Cores / 16 GB)</text>
+        <text x="320" y="32" text-anchor="middle" fill="#00F58C" font-size="15" font-weight="800" class="font-mono">1.8 s</text>
+        <text x="368" y="32" fill="#6B7280" font-size="10" class="font-mono">small</text>
+      </g>
+
+      <!-- Tier 3 -->
+      <g transform="translate(0, 140)">
+        <rect width="388" height="52" rx="6" fill="#141C16" stroke="#223025" stroke-width="1"/>
+        <text x="14" y="20" fill="#FFFFFF" font-size="12.5" font-weight="700" class="font-sans">Tier 3: Modern Desktop Workstation</text>
+        <text x="14" y="38" fill="#9CA3AF" font-size="11" class="font-mono">Intel i7-13700K (16 Cores / 32 GB)</text>
+        <text x="320" y="32" text-anchor="middle" fill="#00F58C" font-size="15" font-weight="800" class="font-mono">0.9 s</text>
+        <text x="368" y="32" fill="#6B7280" font-size="10" class="font-mono">small</text>
+      </g>
+
+      <!-- Notice -->
+      <text x="0" y="212" fill="#6B7280" font-size="10.5" class="font-mono">
+        ★ Dynamic calibration: automatically tunes model tier based on available CPU threads.
+      </text>
+    </g>
+  </g>
+</svg>

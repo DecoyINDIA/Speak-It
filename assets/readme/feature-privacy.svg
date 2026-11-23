@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="100%" height="420" fill="none">
+  <defs>
+    <radialGradient id="p-glow" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#00F58C" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#090C0A" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="shield-alert-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F43F5E"/>
+      <stop offset="100%" stop-color="#9F1239"/>
+    </linearGradient>
+
+    <filter id="p-filter" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <style>
+      .font-sans { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Inter', Roboto, sans-serif; }
+      .font-mono { font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace; }
+
+      /* Animation cycle: 7s loop */
+      .focus-cursor {
+        animation: animCursorJump 7s ease-in-out infinite;
+      }
+      .shield-state-safe {
+        animation: animSafePill 7s ease-in-out infinite;
+      }
+      .shield-state-alert {
+        animation: animAlertPill 7s ease-in-out infinite;
+      }
+      .dpapi-lock {
+        animation: animLockGlow 2.5s ease-in-out infinite;
+      }
+
+      @keyframes animCursorJump {
+        0%, 40% { transform: translate(140px, 142px); }
+        45%, 90% { transform: translate(140px, 202px); }
+        95%, 100% { transform: translate(140px, 142px); }
+      }
+      @keyframes animSafePill {
+        0%, 38% { opacity: 1; transform: translateY(0); }
+        44%, 90% { opacity: 0; transform: translateY(-5px); }
+        95%, 100% { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes animAlertPill {
+        0%, 40% { opacity: 0; transform: translateY(5px); }
+        45%, 88% { opacity: 1; transform: translateY(0); }
+        94%, 100% { opacity: 0; transform: translateY(5px); }
+      }
+      @keyframes animLockGlow {
+        0%, 100% { filter: drop-shadow(0 0 2px #00F58C); }
+        50% { filter: drop-shadow(0 0 8px #00F58C); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .focus-cursor, .shield-state-safe, .shield-state-alert, .dpapi-lock {
+          animation: none !important;
+          opacity: 1 !important;
+        }
+      }
+    </style>
+  </defs>
+
+  <!-- Frame -->
+  <rect width="800" height="420" rx="16" fill="#090C0A"/>
+  <rect width="800" height="420" rx="16" fill="url(#p-glow)"/>
+  <rect x="0.5" y="0.5" width="799" height="419" rx="15.5" stroke="#1D2721" stroke-width="1"/>
+
+  <!-- Header -->
+  <g transform="translate(36, 32)">
+    <rect width="180" height="24" rx="12" fill="#111B15" stroke="#1E3326" stroke-width="1"/>
+    <text x="90" y="16" text-anchor="middle" fill="#00F58C" font-size="10.5" font-weight="700" letter-spacing="1.5" class="font-mono">
+      FEATURE 04 // PRIVACY SHIELD
+    </text>
+
+    <text x="0" y="54" fill="#FFFFFF" font-size="22" font-weight="800" class="font-sans">
+      Password Shield &amp; Windows DPAPI Vault
+    </text>
+    <text x="0" y="74" fill="#9CA3AF" font-size="13" class="font-sans">
+      Active UI Automation inspection halts recording in sensitive password controls before a single byte leaves the mic.
+    </text>
+  </g>
+
+  <!-- Left: Live UI Automation Password Inspection Simulation -->
+  <g transform="translate(36, 125)">
+    <rect width="360" height="260" rx="10" fill="#101512" stroke="#1C2720" stroke-width="1"/>
+    <text x="20" y="24" fill="#6B7280" font-size="10.5" font-weight="700" class="font-mono">UI AUTOMATION FOCUS INSPECTOR</text>
+
+    <!-- Field 1: Standard Username -->
+    <g transform="translate(20, 42)">
+      <text x="0" y="0" fill="#9CA3AF" font-size="11" class="font-sans">Target Input: Username (Standard Edit)</text>
+      <rect x="0" y="8" width="320" height="38" rx="6" fill="#151E18" stroke="#25352A" stroke-width="1"/>
+      <text x="14" y="32" fill="#FFFFFF" font-size="13" class="font-mono">dev_rahul_kumar</text>
+      <circle cx="295" cy="27" r="5" fill="#00F58C"/>
+    </g>
+
+    <!-- Field 2: Password Field -->
+    <g transform="translate(20, 106)">
+      <text x="0" y="0" fill="#F43F5E" font-size="11" font-weight="600" class="font-sans">Target Input: Password (Protected Input)</text>
+      <rect x="0" y="8" width="320" height="38" rx="6" fill="#201316" stroke="#481F26" stroke-width="1.2"/>
+      <text x="14" y="32" fill="#FCA5A5" font-size="14" class="font-mono">••••••••••••••••</text>
+      <!-- Shield Alert Badge inside field -->
+      <g transform="translate(265, 17)">
+        <rect width="45" height="20" rx="4" fill="#F43F5E" fill-opacity="0.2"/>
+        <text x="22.5" y="14" text-anchor="middle" fill="#F43F5E" font-size="10" font-weight="800" class="font-mono">LOCK</text>
+      </g>
+    </g>
+
+    <!-- Moving Active Cursor Box -->
+    <rect class="focus-cursor" width="4" height="18" fill="#00F58C"/>
+
+    <!-- Reaction Status Pill -->
+    <g transform="translate(20, 186)">
+      <!-- Safe State -->
+      <g class="shield-state-safe">
+        <rect width="320" height="42" rx="8" fill="#122017" stroke="#00F58C" stroke-width="1"/>
+        <circle cx="20" cy="21" r="5" fill="#00F58C"/>
+        <text x="34" y="25" fill="#00F58C" font-size="11.5" font-weight="700" class="font-mono">
+          DICTATION ARMED &amp; READY
+        </text>
+      </g>
+
+      <!-- Alert State -->
+      <g class="shield-state-alert">
+        <rect width="320" height="42" rx="8" fill="#251115" stroke="#F43F5E" stroke-width="1.5" filter="url(#p-filter)"/>
+        <path d="M 16 14 L 24 18 L 24 23 C 24 27 20 29 16 30 C 12 29 8 27 8 23 L 8 18 Z" fill="#F43F5E"/>
+        <text x="34" y="25" fill="#F43F5E" font-size="11" font-weight="800" class="font-mono">
+          SHIELD ACTIVE: RECORDING BLOCKED
+        </text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Right: Cryptographic Security & DPAPI Vault -->
+  <g transform="translate(416, 125)">
+    <rect width="348" height="260" rx="10" fill="#101512" stroke="#1C2720" stroke-width="1"/>
+    
+    <g transform="translate(20, 20)">
+      <text x="0" y="0" fill="#6B7280" font-size="10.5" font-weight="700" class="font-mono">WINDOWS DPAPI HARDWARE VAULT</text>
+
+      <!-- DPAPI SafeStorage Card -->
+      <g transform="translate(0, 18)">
+        <rect width="308" height="64" rx="6" fill="#141C16" stroke="#223025" stroke-width="1"/>
+        <g transform="translate(16, 18)">
+          <!-- Padlock -->
+          <rect x="0" y="10" width="22" height="18" rx="3" fill="#182A1F" stroke="#00F58C" stroke-width="1.5" class="dpapi-lock"/>
+          <path d="M 4 10 L 4 5 C 4 1.5 18 1.5 18 5 L 18 10" fill="none" stroke="#00F58C" stroke-width="1.5"/>
+          <circle cx="11" cy="18" r="2" fill="#00F58C"/>
+          <text x="34" y="14" fill="#FFFFFF" font-size="12" font-weight="700" class="font-sans">Windows safeStorage (DPAPI)</text>
+          <text x="34" y="28" fill="#9CA3AF" font-size="10.5" class="font-mono">User/Machine Hardware Key Ring</text>
+        </g>
+      </g>
+
+      <!-- Local SQLite Database Card -->
+      <g transform="translate(0, 92)">
+        <rect width="308" height="64" rx="6" fill="#141C16" stroke="#223025" stroke-width="1"/>
+        <g transform="translate(16, 18)">
+          <!-- Database cylinders -->
+          <ellipse cx="10" cy="8" rx="8" ry="4" fill="none" stroke="#38BDF8" stroke-width="1.5"/>
+          <path d="M 2 8 L 2 16 C 2 18 18 18 18 16 L 18 8" fill="none" stroke="#38BDF8" stroke-width="1.5"/>
+          <path d="M 2 16 L 2 24 C 2 26 18 26 18 24 L 18 16" fill="none" stroke="#38BDF8" stroke-width="1.5"/>
+          <text x="34" y="14" fill="#FFFFFF" font-size="12" font-weight="700" class="font-sans">Local SQLite (better-sqlite3)</text>
+          <text x="34" y="28" fill="#9CA3AF" font-size="10.5" class="font-mono">Zero Telemetry • Zero Cloud Analytics</text>
+        </g>
+      </g>
+
+      <!-- Enterprise Registry Policy -->
+      <g transform="translate(0, 166)">
+        <rect width="308" height="44" rx="6" fill="#131B16" stroke="#1D2A20" stroke-width="1"/>
+        <text x="12" y="18" fill="#00F58C" font-size="10" font-weight="700" class="font-mono">GROUP POLICY (HKLM ENFORCEMENT)</text>
+        <text x="12" y="32" fill="#9CA3AF" font-size="10" class="font-mono">HKLM\Software\Policies\SpeakIt\MandatoryOffline</text>
+      </g>
+    </g>
+  </g>
+</svg>
