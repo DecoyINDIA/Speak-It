@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 444" width="100%" height="100%">
+  <rect x="0.5" y="0.5" width="959" height="443" rx="16" fill="#090a09" stroke="#262825" />
+
+  <text x="44" y="42" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="11" font-weight="600" fill="#b7f652" letter-spacing="0.06em">EVIDENCE SPECIMEN  ·  DOCS/COMPARISON_WIN_H.MD &amp; GOLDEN_50_CASES.JSONL</text>
+  <text x="44" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="700" fill="#f2f4f1" letter-spacing="-0.025em">Built for Hinglish, Self-Corrections, and Technical Vocabulary</text>
+
+  <!-- Column Headers -->
+  <text x="62" y="106" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10.5" font-weight="600" fill="#969994" letter-spacing="0.06em">SPOKEN UTTERANCE</text>
+  <text x="340" y="106" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10.5" font-weight="600" fill="#ff645f" letter-spacing="0.06em">WINDOWS VOICE TYPING (WIN+H)</text>
+  <text x="626" y="106" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10.5" font-weight="600" fill="#b7f652" letter-spacing="0.06em">SPEAKIT CLEANED OUTPUT</text>
+
+  
+    <g transform="translate(44, 118)">
+      <rect width="872" height="92" rx="10" fill="#121311" stroke="#262825" />
+
+      <!-- Col 1: Spoken -->
+      <text x="18" y="22" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="9.5" font-weight="600" fill="#969994" letter-spacing="0.05em">01 · HINGLISH CODE-SWITCHING</text>
+      <text x="18" y="42" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#c2c5c1"><tspan x="18" dy="0">“Arre Sunita deliverable ready hai,</tspan><tspan x="18" dy="17">hum Tuesday meeting mein</tspan><tspan x="18" dy="17">finalize kar lenge.”</tspan></text>
+
+      <!-- Col 2: Win+H -->
+      <rect x="296" y="10" width="272" height="72" rx="7" fill="rgba(255, 100, 95, 0.08)" stroke="rgba(255, 100, 95, 0.30)" />
+      <text x="310" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#ff645f"><tspan x="310" dy="0">“are Sunita deliver able ready hi</tspan><tspan x="310" dy="17">home Tuesday meeting main</tspan><tspan x="310" dy="17">finalize kar language”</tspan></text>
+
+      <!-- Col 3: SpeakIt -->
+      <rect x="582" y="10" width="276" height="72" rx="7" fill="rgba(183, 246, 82, 0.07)" stroke="rgba(183, 246, 82, 0.28)" />
+      <text x="596" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#f2f4f1"><tspan x="596" dy="0">“Sunita, deliverable ready hai;</tspan><tspan x="596" dy="17">hum Tuesday meeting mein</tspan><tspan x="596" dy="17">finalize kar lenge.”</tspan></text>
+      <text x="846" y="73" text-anchor="end" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="9.5" font-weight="600" fill="#b7f652">✓ Bilingual syntax preserved</text>
+    </g>
+
+  
+    <g transform="translate(44, 222)">
+      <rect width="872" height="92" rx="10" fill="#121311" stroke="#262825" />
+
+      <!-- Col 1: Spoken -->
+      <text x="18" y="22" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="9.5" font-weight="600" fill="#969994" letter-spacing="0.05em">02 · VOCAL SELF-CORRECTION</text>
+      <text x="18" y="42" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#c2c5c1"><tspan x="18" dy="0">“we will meet on Monday</tspan><tspan x="18" dy="17">no wait Tuesday morning at 10”</tspan></text>
+
+      <!-- Col 2: Win+H -->
+      <rect x="296" y="10" width="272" height="72" rx="7" fill="rgba(255, 100, 95, 0.08)" stroke="rgba(255, 100, 95, 0.30)" />
+      <text x="310" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#ff645f"><tspan x="310" dy="0">“we will meet on Monday no wait</tspan><tspan x="310" dy="17">Tuesday morning at 10”</tspan></text>
+
+      <!-- Col 3: SpeakIt -->
+      <rect x="582" y="10" width="276" height="72" rx="7" fill="rgba(183, 246, 82, 0.07)" stroke="rgba(183, 246, 82, 0.28)" />
+      <text x="596" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#f2f4f1"><tspan x="596" dy="0">“We will meet on Tuesday</tspan><tspan x="596" dy="17">morning at 10.”</tspan></text>
+      <text x="846" y="73" text-anchor="end" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="9.5" font-weight="600" fill="#b7f652">✓ False start pruned</text>
+    </g>
+
+  
+    <g transform="translate(44, 326)">
+      <rect width="872" height="92" rx="10" fill="#121311" stroke="#262825" />
+
+      <!-- Col 1: Spoken -->
+      <text x="18" y="22" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="9.5" font-weight="600" fill="#969994" letter-spacing="0.05em">03 · CODE &amp; SECURITY TOKENS</text>
+      <text x="18" y="42" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#c2c5c1"><tspan x="18" dy="0">“uh like we need to migrate</tspan><tspan x="18" dy="17">safeStorage DPAPI module in index.ts”</tspan></text>
+
+      <!-- Col 2: Win+H -->
+      <rect x="296" y="10" width="272" height="72" rx="7" fill="rgba(255, 100, 95, 0.08)" stroke="rgba(255, 100, 95, 0.30)" />
+      <text x="310" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#ff645f"><tspan x="310" dy="0">“uh like we need to migrate safe</tspan><tspan x="310" dy="17">storage DPA PI module in index dot t s”</tspan></text>
+
+      <!-- Col 3: SpeakIt -->
+      <rect x="582" y="10" width="276" height="72" rx="7" fill="rgba(183, 246, 82, 0.07)" stroke="rgba(183, 246, 82, 0.28)" />
+      <text x="596" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#f2f4f1"><tspan x="596" dy="0">“We need to migrate safeStorage</tspan><tspan x="596" dy="17">DPAPI module in index.ts.”</tspan></text>
+      <text x="846" y="73" text-anchor="end" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="9.5" font-weight="600" fill="#b7f652">✓ camelCase &amp; .ts kept</text>
+    </g>
+</svg>

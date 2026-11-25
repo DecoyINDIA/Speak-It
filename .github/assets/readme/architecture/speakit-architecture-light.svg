@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 448" width="100%" height="100%">
+  <style>
+    .bus-flow { stroke-dasharray: 5 5; animation: bus-move 2.2s linear infinite; }
+    @keyframes bus-move { to { stroke-dashoffset: -40; } }
+  </style>
+
+  <rect x="0.5" y="0.5" width="959" height="447" rx="16" fill="#ecedeb" stroke="#dddfdc" />
+
+  <text x="44" y="42" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="11" font-weight="600" fill="#397500" letter-spacing="0.06em">SYSTEM ARCHITECTURE  ·  THREE-PROCESS ISOLATION</text>
+  <text x="44" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="700" fill="#151714" letter-spacing="-0.025em">Process Boundaries, Security Guards &amp; Fallback Chain</text>
+
+  <!-- Orthogonal IPC / Provider Conduit Buses between Columns (no overlap!) -->
+  <line class="bus-flow" x1="312" y1="242" x2="348" y2="242" stroke="#397500" stroke-width="1.8" />
+  <line class="bus-flow" x1="628" y1="242" x2="664" y2="242" stroke="#397500" stroke-width="1.8" />
+
+  <!-- IPC Badges centered strictly inside gaps (312..348 is 36px, so put badge cleanly or span gap with clean pill) -->
+  <rect x="304" y="226" width="52" height="32" rx="6" fill="#fdfefd" stroke="rgba(57, 117, 0, 0.32)" />
+  <text x="330" y="240" text-anchor="middle" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="8.5" font-weight="700" fill="#397500">JSON</text>
+  <text x="330" y="251" text-anchor="middle" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="8" fill="#616460">STDIN</text>
+
+  <rect x="616" y="226" width="60" height="32" rx="6" fill="#fdfefd" stroke="rgba(57, 117, 0, 0.32)" />
+  <text x="646" y="240" text-anchor="middle" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="8.5" font-weight="700" fill="#397500">CHAIN</text>
+  <text x="646" y="251" text-anchor="middle" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="8" fill="#616460">POLICY</text>
+
+  <!-- TIER 1: NATIVE HELPER (x=44, w=264 -> ends at 308) -->
+  <rect x="44" y="96" width="264" height="316" rx="12" fill="#fdfefd" stroke="#dddfdc" />
+  <circle cx="62" cy="118" r="4" fill="#397500" />
+  <text x="74" y="122" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="11" font-weight="700" fill="#151714">NATIVE HELPER (.NET 4.8)</text>
+  <text x="62" y="140" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10" fill="#616460">SpeakItHelper.exe · .NET 4.8</text>
+
+  
+    <rect x="58" y="156" width="236" height="50" rx="8" fill="#f1f2f0" stroke="#dddfdc" />
+    <text x="70" y="176" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#151714">Global Hotkey Hook</text>
+    <text x="70" y="193" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10" fill="#616460">WH_KEYBOARD_LL (no keylogging)</text>
+  
+    <rect x="58" y="216" width="236" height="50" rx="8" fill="#f1f2f0" stroke="rgba(173, 104, 0, 0.30)" />
+    <text x="70" y="236" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#151714">Focus &amp; Password Guard</text>
+    <text x="70" y="253" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10" fill="#616460">expectHwnd &amp; isPassword check</text>
+  
+    <rect x="58" y="276" width="236" height="50" rx="8" fill="#f1f2f0" stroke="#dddfdc" />
+    <text x="70" y="296" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#151714">Unicode Keystroke Inject</text>
+    <text x="70" y="313" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10" fill="#616460">Win32 SendInput paste engine</text>
+  
+    <rect x="58" y="336" width="236" height="50" rx="8" fill="#f1f2f0" stroke="#dddfdc" />
+    <text x="70" y="356" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#151714">Clipboard Preservation</text>
+    <text x="70" y="373" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10" fill="#616460">Snapshot &amp; restore after paste</text>
+
+  <!-- TIER 2: ELECTRON MAIN (x=352, w=272 -> ends at 624) -->
+  <rect x="352" y="96" width="272" height="316" rx="12" fill="#fdfefd" stroke="#dddfdc" />
+  <circle cx="370" cy="118" r="4" fill="#397500" />
+  <text x="382" y="122" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="11" font-weight="700" fill="#151714">ELECTRON MAIN PROCESS</text>
+  <text x="370" y="140" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10" fill="#616460">src/main/ · Context-isolated IPC</text>
+
+  
+    <rect x="366" y="156" width="244" height="50" rx="8" fill="#f1f2f0" stroke="#dddfdc" />
+    <text x="378" y="176" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#151714">13-State Dictation Machine</text>
+    <text x="378" y="193" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10" fill="#616460">IDLE → RECORDING → CLEAN → DONE</text>
+  
+    <rect x="366" y="216" width="244" height="50" rx="8" fill="#f1f2f0" stroke="rgba(11, 114, 133, 0.28)" />
+    <text x="378" y="236" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#151714">DPAPI Secret Store</text>
+    <text x="378" y="253" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10" fill="#616460">Electron safeStorage encryption</text>
+  
+    <rect x="366" y="276" width="244" height="50" rx="8" fill="#f1f2f0" stroke="#dddfdc" />
+    <text x="378" y="296" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#151714">SQLite + FTS5 Search</text>
+    <text x="378" y="313" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10" fill="#616460">better-sqlite3 local DB</text>
+  
+    <rect x="366" y="336" width="244" height="50" rx="8" fill="#f1f2f0" stroke="#dddfdc" />
+    <text x="378" y="356" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#151714">Enterprise Registry Policy</text>
+    <text x="378" y="373" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10" fill="#616460">HKLM\Policies\SpeakIt</text>
+
+  <!-- TIER 3: AI INFERENCE CHAIN (x=668, w=248 -> ends at 916) -->
+  <rect x="668" y="96" width="248" height="316" rx="12" fill="#fdfefd" stroke="#dddfdc" />
+  <circle cx="686" cy="118" r="4" fill="#397500" />
+  <text x="698" y="122" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="11" font-weight="700" fill="#151714">PROVIDER FALLBACK CHAIN</text>
+  <text x="686" y="140" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10" fill="#616460">Ordered failover &amp; offline switch</text>
+
+  <rect x="682" y="156" width="220" height="72" rx="8" fill="rgba(57, 117, 0, 0.06)" stroke="rgba(57, 117, 0, 0.28)" />
+  <text x="694" y="176" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#397500">1. Groq LPU (Primary)</text>
+  <text x="694" y="194" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="9.5" fill="#3b3e3a">whisper-large-v3-turbo (~480–650ms)</text>
+  <text x="694" y="210" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="9.5" fill="#616460">llama-3.3-70b-versatile cleanup</text>
+
+  <rect x="682" y="238" width="220" height="60" rx="8" fill="#f1f2f0" stroke="#dddfdc" />
+  <text x="694" y="258" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#151714">2. Gemini / Custom OpenAI</text>
+  <text x="694" y="276" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="9.5" fill="#616460">gemini-2.5-flash automatic failover</text>
+
+  <rect x="682" y="308" width="220" height="88" rx="8" fill="rgba(11, 114, 133, 0.07)" stroke="rgba(11, 114, 133, 0.28)" />
+  <text x="694" y="328" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#0b7285">3. whisper.cpp (Offline)</text>
+  <text x="694" y="346" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="9.5" fill="#3b3e3a">whisper-server.exe on 127.0.0.1</text>
+  <text x="694" y="362" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="9.5" fill="#616460">0.3s–3.8s CPU · 0 KB network egress</text>
+  <text x="694" y="378" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="9" fill="#616460">Enforced when OfflineOnly=1</text>
+</svg>

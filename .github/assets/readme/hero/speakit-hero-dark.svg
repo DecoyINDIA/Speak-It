@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="100%" height="100%">
+  <defs>
+    <radialGradient id="hero-rad-dark" cx="50%" cy="62%" r="55%">
+      <stop offset="0%" stop-color="#b7f652" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#090a09" stop-opacity="0" />
+    </radialGradient>
+    <filter id="pill-shadow-dark" x="-15%" y="-25%" width="130%" height="170%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.55" />
+    </filter>
+  </defs>
+
+  <style>
+    .eq { transform-box: fill-box; transform-origin: center; animation-name: eq-scale; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+    @keyframes eq-scale { 0%, 100% { transform: scaleY(0.45); } 50% { transform: scaleY(1.12); } }
+    .live-dot { transform-box: fill-box; transform-origin: center; animation: pulse-live 1.7s ease-in-out infinite; }
+    @keyframes pulse-live { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.32); opacity: 0.78; } }
+    .wave-flow-1 { stroke-dasharray: 10 8; animation: dash-flow 3.6s linear infinite; }
+    .wave-flow-2 { stroke-dasharray: 6 10; animation: dash-flow 5.0s linear infinite; }
+    @keyframes dash-flow { to { stroke-dashoffset: -72; } }
+    .caret { animation: blink 1.1s steps(1, end) infinite; }
+    @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  </style>
+
+  <!-- Outer Frame -->
+  <rect x="0.5" y="0.5" width="959" height="439" rx="16" fill="#090a09" stroke="#262825" />
+  <rect x="1" y="1" width="958" height="438" rx="15.5" fill="url(#hero-rad-dark)" />
+
+  <!-- Top Bar Identity -->
+  
+  <g>
+    <rect x="44" y="34" width="28" height="28" rx="8" fill="#b7f652" />
+    <g transform="translate(49.32, 39.32) scale(0.7233)" stroke="#0e1a01" stroke-width="2.3" stroke-linecap="round" fill="none">
+      <line x1="2" y1="10" x2="2" y2="14" />
+      <line x1="6" y1="6" x2="6" y2="17" />
+      <line x1="10" y1="3" x2="10" y2="21" />
+      <line x1="14" y1="8" x2="14" y2="15" />
+      <line x1="18" y1="5" x2="18" y2="18" />
+      <line x1="22" y1="10" x2="22" y2="13" />
+    </g>
+  </g>
+  <text x="84" y="54" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="700" fill="#f2f4f1" letter-spacing="-0.02em">SpeakIt</text>
+  <rect x="160" y="38" width="90" height="20" rx="10" fill="#121311" stroke="#262825" />
+  <text x="205" y="51.5" text-anchor="middle" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10.5" font-weight="600" fill="#969994">0.9.0-beta.1</text>
+
+  <text x="916" y="52" text-anchor="end" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="11" font-weight="500" fill="#969994" letter-spacing="0.04em">WINDOWS 10 / 11  ·  MIT LICENSE  ·  ZERO TELEMETRY</text>
+  <line x1="44" y1="80" x2="916" y2="80" stroke="#262825" />
+
+  <!-- Editorial Headline -->
+  <text x="44" y="130" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="38" font-weight="700" fill="#f2f4f1" letter-spacing="-0.035em">Voice typing that sounds like you.</text>
+  <text x="44" y="160" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15.5" font-weight="400" fill="#969994">Understands Hinglish, clears conversational disfluencies, and pastes clean text at your cursor.</text>
+
+  <!-- Kinetic Instrument Stage -->
+  <rect x="44" y="192" width="872" height="208" rx="14" fill="#121311" stroke="#262825" />
+
+  <!-- Left: Acoustic Input Waveform Track -->
+  <text x="72" y="224" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10.5" font-weight="600" fill="#969994" letter-spacing="0.06em">01 · SPOKEN INPUT (HINGLISH + FILLERS)</text>
+  <rect x="72" y="238" width="268" height="106" rx="10" fill="#1b1c1a" stroke="#262825" />
+  <!-- Gentle Harmonic Waves inside Left Well -->
+  <path class="wave-flow-1" d="M 88 262 C 110 246, 130 278, 154 262 S 198 246, 222 262 S 266 278, 290 262 S 314 252, 324 262" fill="none" stroke="#b7f652" stroke-opacity="0.35" stroke-width="1.6" />
+  <path class="wave-flow-2" d="M 88 264 C 112 276, 134 250, 158 264 S 202 276, 226 264 S 270 250, 294 264 S 314 270, 324 264" fill="none" stroke="#969994" stroke-opacity="0.35" stroke-width="1.2" />
+
+  <text x="88" y="294" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" fill="#c2c5c1">
+    <tspan x="88" dy="0">“Arre Sunita, </tspan><tspan fill="#ff645f">um</tspan><tspan>, meeting Monday</tspan>
+    <tspan x="88" dy="19"><tspan fill="#f7b83d">no wait</tspan> Tuesday ko finalize hai”</tspan>
+  </text>
+  <text x="88" y="334" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10" fill="#969994">16 kHz Opus WebM · ~40 KB / 10s</text>
+
+  <!-- Conduit Left -> Center -->
+  <line x1="340" y1="291" x2="378" y2="291" stroke="#3b3e3a" stroke-width="1.5" />
+  <circle cx="340" cy="291" r="3" fill="#b7f652" />
+
+  <!-- Center Protagonist: Exact SpeakIt Floating Bar (Always Charcoal!) -->
+  <g filter="url(#pill-shadow-dark)">
+    <rect x="378" y="269" width="204" height="44" rx="22" fill="#0e100e" stroke="#2c2f2b" stroke-width="1.2" />
+    <circle class="live-dot" cx="400" cy="291" r="4.5" fill="#b7f652" />
+    <text x="413" y="295.5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#f0f2f0">Listening</text>
+    <rect class="eq eq-1" style="animation-duration:0.72s;animation-delay:0s;" x="488" y="288.0" width="3" height="6" rx="1.5" fill="#b7f652" />
+      <rect class="eq eq-2" style="animation-duration:0.88s;animation-delay:0.08s;" x="493" y="285.0" width="3" height="12" rx="1.5" fill="#b7f652" />
+      <rect class="eq eq-3" style="animation-duration:0.64s;animation-delay:0.18s;" x="498" y="286.5" width="3" height="9" rx="1.5" fill="#b7f652" />
+      <rect class="eq eq-4" style="animation-duration:0.94s;animation-delay:0.04s;" x="503" y="282.5" width="3" height="17" rx="1.5" fill="#b7f652" />
+      <rect class="eq eq-5" style="animation-duration:0.78s;animation-delay:0.14s;" x="508" y="284.5" width="3" height="13" rx="1.5" fill="#b7f652" />
+      <rect class="eq eq-6" style="animation-duration:0.84s;animation-delay:0.22s;" x="513" y="282.0" width="3" height="18" rx="1.5" fill="#b7f652" />
+      <rect class="eq eq-7" style="animation-duration:0.68s;animation-delay:0.1s;" x="518" y="286.0" width="3" height="10" rx="1.5" fill="#b7f652" />
+      <rect class="eq eq-8" style="animation-duration:0.9s;animation-delay:0.16s;" x="523" y="284.0" width="3" height="14" rx="1.5" fill="#b7f652" />
+      <rect class="eq eq-9" style="animation-duration:0.74s;animation-delay:0.24s;" x="528" y="287.5" width="3" height="7" rx="1.5" fill="#b7f652" />
+    
+    <g>
+      <circle cx="562" cy="291" r="11" fill="#1c1e1b" />
+      <path d="M 558.5 287.5 L 565.5 294.5 M 565.5 287.5 L 558.5 294.5" stroke="#9ca09b" stroke-width="1.6" stroke-linecap="round" />
+    </g>
+  </g>
+
+  <!-- Keycap prompt centered below Floating Bar -->
+  <rect x="424" y="328" width="46" height="22" rx="5" fill="#1b1c1a" stroke="#3b3e3a" />
+  <text x="447" y="342.5" text-anchor="middle" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10.5" font-weight="600" fill="#c2c5c1">Ctrl</text>
+  <text x="480" y="342.5" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#969994">+</text>
+  <rect x="490" y="328" width="46" height="22" rx="5" fill="#1b1c1a" stroke="#3b3e3a" />
+  <text x="513" y="342.5" text-anchor="middle" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10.5" font-weight="600" fill="#c2c5c1">Win</text>
+
+  <!-- Conduit Center -> Right -->
+  <line x1="582" y1="291" x2="620" y2="291" stroke="#3b3e3a" stroke-width="1.5" />
+  <circle cx="620" cy="291" r="3" fill="#b7f652" />
+
+  <!-- Right: Formatted Output Inserted at Cursor -->
+  <text x="620" y="224" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10.5" font-weight="600" fill="#b7f652" letter-spacing="0.06em">02 · CLEANED &amp; INSERTED AT CURSOR</text>
+  <rect x="620" y="238" width="268" height="106" rx="10" fill="rgba(183, 246, 82, 0.07)" stroke="rgba(183, 246, 82, 0.28)" />
+  <text x="636" y="272" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#f2f4f1">
+    <tspan x="636" dy="0">Sunita, meeting Tuesday ko</tspan>
+    <tspan x="636" dy="22">finalize hai.</tspan>
+  </text>
+  <rect class="caret" x="711" y="280" width="2.2" height="17" rx="1" fill="#b7f652" />
+  <text x="636" y="334" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="9.5" font-weight="600" fill="#b7f652">✓ Inserted via SendInput · clipboard ok</text>
+
+  <!-- Bottom Evidence Strip inside Stage -->
+  <line x1="72" y1="364" x2="888" y2="364" stroke="#262825" />
+  <text x="72" y="384" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10.5" fill="#969994">CLOUD STT (GROQ): <tspan fill="#c2c5c1" font-weight="600">~480–650 ms p50</tspan></text>
+  <text x="366" y="384" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10.5" fill="#969994">LOCAL ENGINE: <tspan fill="#c2c5c1" font-weight="600">whisper.cpp (0 KB egress)</tspan></text>
+  <text x="888" y="384" text-anchor="end" font-family="'Cascadia Mono', 'Cascadia Code', Consolas, ui-monospace, monospace" font-size="10.5" fill="#969994">SHIELD: <tspan fill="#c2c5c1" font-weight="600">UIAutomation isPassword</tspan></text>
+</svg>
